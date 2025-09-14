@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { CodeBlock } from "./code-block";
+import Shimmer from "./shimmer";
 
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
@@ -69,12 +70,17 @@ export const ToolHeader = ({
       className
     )}
     {...props}>
-    <div className="flex items-center gap-2">
-      <WrenchIcon className="size-4 text-muted-foreground" />
-      <span className="font-medium text-sm">{type}</span>
+    <div className="flex items-center">
+      <WrenchIcon className="size-4 text-muted-foreground mr-3" />
+      {state == "input-streaming" ? (
+        <Shimmer text={type} className="mr-6" />
+      ) : (
+        <span className="font-medium text-sm mr-6">{type}</span>
+      )}
+
       {getStatusBadge(state)}
     </div>
-    <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+    {/* <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" /> */}
   </CollapsibleTrigger>
 );
 
@@ -120,25 +126,14 @@ export const ToolOutput = ({
     return null;
   }
 
-  let Output: ReactNode = <div>{output as ReactNode}</div>;
+  let Output = <div>{output as ReactNode}</div>;
 
-  // Check if output is a React element (has $$typeof property)
-  const isReactElement =
-    output && typeof output === "object" && "$$typeof" in output;
-
-  if (!isReactElement) {
-    if (typeof output === "object") {
-      try {
-        Output = (
-          <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
-        );
-      } catch (error) {
-        // If JSON.stringify fails (circular reference), render as ReactNode
-        Output = <div>{output as ReactNode}</div>;
-      }
-    } else if (typeof output === "string") {
-      Output = <CodeBlock code={output} language="json" />;
-    }
+  if (typeof output === "object") {
+    Output = (
+      <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
+    );
+  } else if (typeof output === "string") {
+    Output = <CodeBlock code={output} language="json" />;
   }
 
   return (

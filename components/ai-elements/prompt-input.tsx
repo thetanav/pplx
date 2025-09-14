@@ -599,6 +599,7 @@ export const PromptInputActionMenuItem = ({
 
 export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
   status?: ChatStatus;
+  stop: () => Promise<void>;
 };
 
 export const PromptInputSubmit = ({
@@ -606,6 +607,7 @@ export const PromptInputSubmit = ({
   variant = "default",
   size = "icon",
   status,
+  stop,
   children,
   ...props
 }: PromptInputSubmitProps) => {
@@ -625,6 +627,9 @@ export const PromptInputSubmit = ({
       size={size}
       type="submit"
       variant={variant}
+      onClick={() => {
+        if (status === "streaming") stop();
+      }}
       {...props}>
       {children ?? Icon}
     </Button>

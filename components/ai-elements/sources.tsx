@@ -6,7 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { ChevronDownIcon, Globe2Icon } from "lucide-react";
+import { ChevronDownIcon, GlobeIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
 export type SourcesProps = ComponentProps<typeof Collapsible> & {
@@ -37,7 +37,7 @@ export const SourcesTrigger = ({
     {...props}>
     {children ?? (
       <>
-        <Globe2Icon className="size-4 text-primary" />
+        <GlobeIcon className="size-4 text-primary" />
         <p className="font-medium">Used {count} sources</p>
         <ChevronDownIcon className="size-4 transition-transform data-[state=open]:rotate-180 data-[state=closed]:rotate-0" />
       </>
@@ -80,7 +80,7 @@ export const Source = ({ href, title, children, ...props }: SourceProps) => (
           width={16}
           height={16}
         />
-        <span className="block font-medium">{title}</span>
+        <span className="block font-medium text-xs">{title}</span>
       </>
     )}
   </a>

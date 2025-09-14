@@ -47,13 +47,20 @@ import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
 import Shimmer from "@/components/ai-elements/shimmer";
 import { CompactToolCall } from "@/components/ai-elements/tool-call";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
   const [web, setWeb] = useState<boolean>(false);
   const [useTool, setUseTool] = useState<boolean>(false);
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, regenerate, stop } = useChat();
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -135,21 +142,15 @@ const ChatBotDemo = () => {
                         case part.type.startsWith("tool-"):
                           const toolType = part.type.replace("tool-", "");
                           return (
-                            <CompactToolCall
-                              key={`${message.id}-${i}-tool`}
-                              toolType={toolType}
-                              toolState={(part as any).state}
-                              input={(part as any).input}
-                              output={(part as any).output}
-                              errorText={(part as any).errorText}
-                              isStreaming={
-                                status === "streaming" &&
-                                message.id === messages.at(-1)?.id
-                              }
-                            />
+                            <Tool
+                              defaultOpen={true}
+                              key={`${message.id}-${i}-${toolType}`}>
+                              <ToolHeader
+                                type={`tool-${toolType}`}
+                                state={(part as any).state}
+                              />
+                            </Tool>
                           );
-                        default:
-                          return null;
                       }
                     })}
                   </MessageContent>
@@ -213,7 +214,11 @@ const ChatBotDemo = () => {
                 </PromptInputModelSelectContent>
               </PromptInputModelSelect>
             </PromptInputTools>
-            <PromptInputSubmit disabled={!input && !status} status={status} />
+            <PromptInputSubmit
+              disabled={!input && !status}
+              status={status}
+              stop={stop}
+            />
           </PromptInputToolbar>
         </PromptInput>
       </div>

@@ -25,22 +25,18 @@ const tools = {
     description: "Fetch weather information for a specific location",
     inputSchema: z.object({
       location: z.string(),
-      units: z.enum(["celsius", "fahrenheit"]).default("celsius"),
     }),
-    execute: async ({ location, units }) => {
+    execute: async ({ location }) => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      const temp =
-        units === "celsius"
-          ? Math.floor(Math.random() * 35) + 5
-          : Math.floor(Math.random() * 63) + 41;
+      const temp = Math.floor(Math.random() * 35) + 5;
 
       return {
         location,
-        temperature: `${temp}°${units === "celsius" ? "C" : "F"}`,
+        temperature: `${temp}°C`,
         conditions: "Sunny",
         humidity: `12%`,
-        windSpeed: `35 ${units === "celsius" ? "km/h" : "mph"}`,
+        windSpeed: `35 km/h`,
         lastUpdated: new Date().toLocaleString(),
       };
     },
