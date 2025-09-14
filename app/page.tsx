@@ -46,11 +46,13 @@ import {
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
 import Shimmer from "@/components/ai-elements/shimmer";
+import { CompactToolCall } from "@/components/ai-elements/tool-call";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
   const [web, setWeb] = useState<boolean>(false);
+  const [useTool, setUseTool] = useState<boolean>(false);
   const { messages, sendMessage, status } = useChat();
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -69,6 +71,7 @@ const ChatBotDemo = () => {
       {
         body: {
           model: web ? "sonar" : model,
+          useTool,
         },
       }
     );
@@ -106,38 +109,51 @@ const ChatBotDemo = () => {
                         ))}
                     </Sources>
                   )}
-                {message.parts.map((part, i) => {
-                  switch (part.type) {
-                    case "text":
-                      return (
-                        <Fragment key={`${message.id}-${i}`}>
-                          <Message from={message.role}>
-                            <MessageContent>
-                              <Response>{part.text}</Response>
-                            </MessageContent>
-                          </Message>
-                        </Fragment>
-                      );
-                    case "reasoning":
-                      return (
-                        <Reasoning
-                          key={`${message.id}-${i}`}
-                          className="w-full"
-                          isStreaming={
-                            status === "streaming" &&
-                            i === message.parts.length - 1 &&
-                            message.id === messages.at(-1)?.id
-                          }>
-                          <ReasoningTrigger />
-                          <ReasoningContent>{part.text}</ReasoningContent>
-                        </Reasoning>
-                      );
-                    case "tool-getTime":
-                      return <Shimmer text="Get Time..." />;
-                    default:
-                      return null;
-                  }
-                })}
+                <Message from={message.role}>
+                  <MessageContent>
+                    {message.parts.map((part, i) => {
+                      switch (true) {
+                        case part.type == "text":
+                          return (
+                            <Response key={`${message.id}-${i}`}>
+                              {part.text}
+                            </Response>
+                          );
+                        case part.type == "reasoning":
+                          return (
+                            <Reasoning
+                              key={`${message.id}-${i}`}
+                              className="w-full"
+                              isStreaming={
+                                status === "streaming" &&
+                                message.id === messages.at(-1)?.id
+                              }>
+                              <ReasoningTrigger />
+                              <ReasoningContent>{part.text}</ReasoningContent>
+                            </Reasoning>
+                          );
+                        case part.type.startsWith("tool-"):
+                          const toolType = part.type.replace("tool-", "");
+                          return (
+                            <CompactToolCall
+                              key={`${message.id}-${i}-tool`}
+                              toolType={toolType}
+                              toolState={(part as any).state}
+                              input={(part as any).input}
+                              output={(part as any).output}
+                              errorText={(part as any).errorText}
+                              isStreaming={
+                                status === "streaming" &&
+                                message.id === messages.at(-1)?.id
+                              }
+                            />
+                          );
+                        default:
+                          return null;
+                      }
+                    })}
+                  </MessageContent>
+                </Message>
               </div>
             ))}
 
@@ -171,7 +187,11 @@ const ChatBotDemo = () => {
                 variant={web ? "default" : "ghost"}>
                 <GlobeIcon size={16} />
               </PromptInputButton>
-              <PromptInputButton onClick={() => {}} variant="ghost">
+              <PromptInputButton
+                onClick={() => {
+                  setUseTool(!useTool);
+                }}
+                variant={useTool ? "default" : "ghost"}>
                 <WrenchIcon size={16} />
               </PromptInputButton>
               <PromptInputModelSelect

@@ -68,8 +68,7 @@ export const ToolHeader = ({
       "flex w-full items-center justify-between gap-4 p-3",
       className
     )}
-    {...props}
-  >
+    {...props}>
     <div className="flex items-center gap-2">
       <WrenchIcon className="size-4 text-muted-foreground" />
       <span className="font-medium text-sm">{type}</span>
@@ -121,14 +120,25 @@ export const ToolOutput = ({
     return null;
   }
 
-  let Output = <div>{output as ReactNode}</div>;
+  let Output: ReactNode = <div>{output as ReactNode}</div>;
 
-  if (typeof output === "object") {
-    Output = (
-      <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
-    );
-  } else if (typeof output === "string") {
-    Output = <CodeBlock code={output} language="json" />;
+  // Check if output is a React element (has $$typeof property)
+  const isReactElement =
+    output && typeof output === "object" && "$$typeof" in output;
+
+  if (!isReactElement) {
+    if (typeof output === "object") {
+      try {
+        Output = (
+          <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
+        );
+      } catch (error) {
+        // If JSON.stringify fails (circular reference), render as ReactNode
+        Output = <div>{output as ReactNode}</div>;
+      }
+    } else if (typeof output === "string") {
+      Output = <CodeBlock code={output} language="json" />;
+    }
   }
 
   return (
@@ -142,8 +152,7 @@ export const ToolOutput = ({
           errorText
             ? "bg-destructive/10 text-destructive"
             : "bg-muted/50 text-foreground"
-        )}
-      >
+        )}>
         {errorText && <div>{errorText}</div>}
         {Output}
       </div>
