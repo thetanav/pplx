@@ -1,0 +1,4 @@
+- [ ] support for mcp
+- [ ] ollama models
+- [ ] local mcp
+- [ ] tools
