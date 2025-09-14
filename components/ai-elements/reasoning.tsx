@@ -9,9 +9,18 @@ import {
 import { cn } from "@/lib/utils";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { createContext, memo, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  memo,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Response } from "./response";
 import Shimmer from "./shimmer";
+import { BlurFade } from "@/components/magicui/blur-fade";
+import ProgressiveBlur from "../magicui/progressive-blur";
 
 type ReasoningContextValue = {
   isStreaming: boolean;
@@ -136,12 +145,7 @@ export const ReasoningTrigger = memo(
           <>
             <BrainIcon className="size-4 text-primary" />
             {getThinkingMessage(isStreaming, duration)}
-            <ChevronDownIcon
-              className={cn(
-                "size-4 transition-transform",
-                isOpen ? "rotate-180" : "rotate-0"
-              )}
-            />
+            <ChevronDownIcon className="size-4" />
           </>
         )}
       </CollapsibleTrigger>
@@ -156,17 +160,32 @@ export type ReasoningContentProps = ComponentProps<
 };
 
 export const ReasoningContent = memo(
-  ({ className, children, ...props }: ReasoningContentProps) => (
-    <CollapsibleContent
-      className={cn(
-        "mt-4 text-sm",
-        "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-muted-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
-        className
-      )}
-      {...props}>
-      <Response className="grid gap-2">{children}</Response>
-    </CollapsibleContent>
-  )
+  ({ className, children, ...props }: ReasoningContentProps) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTop = el.scrollHeight; // scroll to bottom when content grows
+      }
+    }, [children]);
+
+    return (
+      <CollapsibleContent
+        className={cn(
+          "mt-4 text-sm relative",
+          "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-muted-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
+          className
+        )}
+        {...props}>
+        <Response
+          ref={scrollRef}
+          className="grid gap-2 relative z-0 pb-3 max-h-48 overflow-y-auto">
+          {children}
+        </Response>
+      </CollapsibleContent>
+    );
+  }
 );
 
 Reasoning.displayName = "Reasoning";

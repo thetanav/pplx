@@ -1,21 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { type ComponentProps, memo } from "react";
+import { type ComponentProps, memo, forwardRef } from "react";
 import { Streamdown } from "streamdown";
 
 type ResponseProps = ComponentProps<typeof Streamdown>;
 
 export const Response = memo(
-  ({ className, ...props }: ResponseProps) => (
-    <Streamdown
+  forwardRef<HTMLDivElement, ResponseProps>(({ className, ...props }, ref) => (
+    <div
+      ref={ref}
       className={cn(
         "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         className
-      )}
-      {...props}
-    />
-  ),
+      )}>
+      <Streamdown {...props} />
+    </div>
+  )),
   (prevProps, nextProps) => prevProps.children === nextProps.children
 );
 

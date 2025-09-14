@@ -9,13 +9,14 @@ import { cn } from "@/lib/utils";
 import { BookIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 
-export type SourcesProps = ComponentProps<"div">;
+export type SourcesProps = ComponentProps<typeof Collapsible> & {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
 
 export const Sources = ({ className, ...props }: SourcesProps) => (
-  <Collapsible
-    className={cn("not-prose mb-4 text-primary text-xs", className)}
-    {...props}
-  />
+  <Collapsible className={cn("not-prose mb-4", className)} {...props} />
 );
 
 export type SourcesTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {
@@ -29,12 +30,16 @@ export const SourcesTrigger = ({
   ...props
 }: SourcesTriggerProps) => (
   <CollapsibleTrigger
-    className={cn("flex items-center gap-2", className)}
+    className={cn(
+      "flex w-full items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground",
+      className
+    )}
     {...props}>
     {children ?? (
       <>
+        <BookIcon className="size-4 text-primary" />
         <p className="font-medium">Used {count} sources</p>
-        <ChevronDownIcon className="h-4 w-4" />
+        <ChevronDownIcon className="size-4 transition-transform data-[state=open]:rotate-180 data-[state=closed]:rotate-0" />
       </>
     )}
   </CollapsibleTrigger>
@@ -48,19 +53,19 @@ export const SourcesContent = ({
 }: SourcesContentProps) => (
   <CollapsibleContent
     className={cn(
-      "mt-3 flex w-fit flex-col gap-2",
-      "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
+      "mt-3 grid gap-2 text-sm text-muted-foreground",
+      "data-[state=closed]:fade-out-0 data-[state=closed]:blur-xl data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 data-[state=open]:blur-none outline-none data-[state=closed]:animate-in data-[state=open]:animate-in transition-all",
       className
     )}
     {...props}
   />
 );
 
-export type SourceProps = ComponentProps<"a">;
+export type SourceProps = ComponentProps<"a"> & { title: string };
 
 export const Source = ({ href, title, children, ...props }: SourceProps) => (
   <a
-    className="flex items-center gap-2"
+    className="flex items-center gap-2 transition-colors hover:text-primary"
     href={href}
     rel="noreferrer"
     target="_blank"
@@ -75,9 +80,7 @@ export const Source = ({ href, title, children, ...props }: SourceProps) => (
           width={16}
           height={16}
         />
-        <span className="block font-medium text-muted-foreground hover:text-primary">
-          {title}
-        </span>
+        <span className="block font-medium">{title}</span>
       </>
     )}
   </a>

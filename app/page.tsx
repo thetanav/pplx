@@ -50,6 +50,7 @@ import Shimmer from "@/components/ai-elements/shimmer";
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
+  const [web, setWeb] = useState<boolean>(false);
   const { messages, sendMessage, status } = useChat();
 
   const handleSubmit = (message: PromptInputMessage) => {
@@ -67,7 +68,7 @@ const ChatBotDemo = () => {
       },
       {
         body: {
-          model: model,
+          model: web ? "sonar" : model,
         },
       }
     );
@@ -163,7 +164,11 @@ const ChatBotDemo = () => {
                   <PromptInputActionAddAttachments />
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
-              <PromptInputButton onClick={() => {}} variant="ghost">
+              <PromptInputButton
+                onClick={() => {
+                  setWeb(!web);
+                }}
+                variant={web ? "default" : "ghost"}>
                 <GlobeIcon size={16} />
               </PromptInputButton>
               <PromptInputButton onClick={() => {}} variant="ghost">
