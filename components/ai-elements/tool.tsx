@@ -23,64 +23,39 @@ import Shimmer from "./shimmer";
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
-  <Collapsible
-    className={cn("not-prose mb-4 w-full rounded-md border", className)}
-    {...props}
-  />
+  <Collapsible className={cn("not-prose my-2 w-full", className)} {...props} />
 );
 
 export type ToolHeaderProps = {
   type: ToolUIPart["type"];
   state: ToolUIPart["state"];
   className?: string;
-};
-
-const getStatusBadge = (status: ToolUIPart["state"]) => {
-  const labels = {
-    "input-streaming": "Pending",
-    "input-available": "Running",
-    "output-available": "Completed",
-    "output-error": "Error",
-  } as const;
-
-  const icons = {
-    "input-streaming": <CircleIcon className="size-4" />,
-    "input-available": <ClockIcon className="size-4 animate-pulse" />,
-    "output-available": <CheckCircleIcon className="size-4 text-green-600" />,
-    "output-error": <XCircleIcon className="size-4 text-red-600" />,
-  } as const;
-
-  return (
-    <Badge className="gap-1.5 rounded-full text-xs" variant="secondary">
-      {icons[status]}
-      {labels[status]}
-    </Badge>
-  );
+  name: string;
 };
 
 export const ToolHeader = ({
   className,
   type,
   state,
+  name,
   ...props
 }: ToolHeaderProps) => (
   <CollapsibleTrigger
     className={cn(
-      "flex w-full items-center justify-between gap-4 p-3",
+      "flex w-full items-center justify-between gap-4 p-0",
       className
     )}
     {...props}>
-    <div className="flex items-center">
-      <WrenchIcon className="size-4 text-muted-foreground mr-3" />
-      {state == "input-streaming" ? (
-        <Shimmer text={type} className="mr-6" />
+    <div className="flex items-center justify-center">
+      <WrenchIcon className="size-4 text-primary mr-2" />
+      {state != "output-available" ? (
+        <Shimmer text={type} />
       ) : (
-        <span className="font-medium text-sm mr-6">{type}</span>
+        <span className="font-medium text-muted-foreground text-sm">
+          Tool called {name}
+        </span>
       )}
-
-      {getStatusBadge(state)}
     </div>
-    {/* <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" /> */}
   </CollapsibleTrigger>
 );
 

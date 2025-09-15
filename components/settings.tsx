@@ -26,7 +26,7 @@ export default function Menu() {
         <DialogContent>
           <DialogTitle>Developer</DialogTitle>
           <div>
-            Developer by{" "}
+            Developed by{" "}
             <a className="hover:underline" href="https://tanavindev.tech">
               tanav
             </a>

@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
 import Menu from "@/components/settings";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const sans = Space_Grotesk({
   subsets: ["latin"],
 });
 
@@ -26,9 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html>
-      <body
-        className={`${geistSans.className} ${geistMono.className} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
+      <body className={`${sans.className} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange>
           <Menu />
           {children}
         </ThemeProvider>

@@ -16,7 +16,7 @@ export type SourcesProps = ComponentProps<typeof Collapsible> & {
 };
 
 export const Sources = ({ className, ...props }: SourcesProps) => (
-  <Collapsible className={cn("not-prose mb-4", className)} {...props} />
+  <Collapsible className={cn("not-prose my-2", className)} {...props} />
 );
 
 export type SourcesTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {

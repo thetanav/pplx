@@ -45,8 +45,6 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
-import Shimmer from "@/components/ai-elements/shimmer";
-import { CompactToolCall } from "@/components/ai-elements/tool-call";
 import {
   Tool,
   ToolContent,
@@ -146,11 +144,14 @@ const ChatBotDemo = () => {
                               defaultOpen={true}
                               key={`${message.id}-${i}-${toolType}`}>
                               <ToolHeader
+                                name={toolType}
                                 type={`tool-${toolType}`}
                                 state={(part as any).state}
                               />
                             </Tool>
                           );
+                        default:
+                          return null;
                       }
                     })}
                   </MessageContent>
