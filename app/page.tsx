@@ -31,7 +31,7 @@ import { Action, Actions } from "@/components/ai-elements/actions";
 import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
-import { GlobeIcon, WrenchIcon } from "lucide-react";
+import { BoxIcon, GlobeIcon, WrenchIcon } from "lucide-react";
 import {
   Source,
   Sources,
@@ -209,6 +209,7 @@ const ChatBotDemo = () => {
                     <PromptInputModelSelectItem
                       key={model.value}
                       value={model.value}>
+                      <model.icon />
                       {model.name}
                     </PromptInputModelSelectItem>
                   ))}

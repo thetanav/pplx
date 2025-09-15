@@ -22,6 +22,7 @@ import {
   ImageIcon,
   Loader2Icon,
   PaperclipIcon,
+  PinIcon,
   PlusIcon,
   SendIcon,
   SquareIcon,
@@ -168,7 +169,7 @@ export type PromptInputActionAddAttachmentsProps = ComponentProps<
 };
 
 export const PromptInputActionAddAttachments = ({
-  label = "Add photos",
+  label = "Add attachments",
   ...props
 }: PromptInputActionAddAttachmentsProps) => {
   const attachments = usePromptInputAttachments();
@@ -180,7 +181,7 @@ export const PromptInputActionAddAttachments = ({
         e.preventDefault();
         attachments.openFileDialog();
       }}>
-      <ImageIcon className="mr-2 size-4" /> {label}
+      <PinIcon className="mr-2 size-4" /> {label}
     </DropdownMenuItem>
   );
 };
@@ -277,54 +278,46 @@ export const PromptInput = ({
         });
         return;
       }
-      setItems((prev) => {
-        const capacity =
-          typeof maxFiles === "number"
-            ? Math.max(0, maxFiles - prev.length)
-            : undefined;
-        const capped =
-          typeof capacity === "number" ? sized.slice(0, capacity) : sized;
-        if (typeof capacity === "number" && sized.length > capacity) {
-          onError?.({
-            code: "max_files",
-            message: "Too many files. Some were not added.",
-          });
-        }
-        const next: (FileUIPart & { id: string })[] = [];
-        for (const file of capped) {
-          next.push({
-            id: nanoid(),
-            type: "file",
-            url: URL.createObjectURL(file),
-            mediaType: file.type,
-            filename: file.name,
-          });
-        }
-        return prev.concat(next);
+      const capacity =
+        typeof maxFiles === "number"
+          ? Math.max(0, maxFiles - items.length)
+          : undefined;
+      const capped =
+        typeof capacity === "number" ? sized.slice(0, capacity) : sized;
+      if (typeof capacity === "number" && sized.length > capacity) {
+        onError?.({
+          code: "max_files",
+          message: "Too many files. Some were not added.",
+        });
+      }
+      const promises = capped.map((file) => {
+        return new Promise<FileUIPart & { id: string }>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              id: nanoid(),
+              type: "file",
+              url: reader.result as string,
+              mediaType: file.type,
+              filename: file.name,
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(promises).then((newItems) => {
+        setItems((prev) => prev.concat(newItems));
       });
     },
-    [matchesAccept, maxFiles, maxFileSize, onError]
+    [matchesAccept, maxFiles, maxFileSize, onError, items.length]
   );
 
   const remove = useCallback((id: string) => {
-    setItems((prev) => {
-      const found = prev.find((file) => file.id === id);
-      if (found?.url) {
-        URL.revokeObjectURL(found.url);
-      }
-      return prev.filter((file) => file.id !== id);
-    });
+    setItems((prev) => prev.filter((file) => file.id !== id));
   }, []);
 
   const clear = useCallback(() => {
-    setItems((prev) => {
-      for (const file of prev) {
-        if (file.url) {
-          URL.revokeObjectURL(file.url);
-        }
-      }
-      return [];
-    });
+    setItems([]);
   }, []);
 
   // Note: File input cannot be programmatically set for security reasons
