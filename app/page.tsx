@@ -52,6 +52,7 @@ import {
   ToolInput,
   ToolOutput,
 } from "@/components/ai-elements/tool";
+import { DynamicToolUIPart } from "ai";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
@@ -146,7 +147,7 @@ const ChatBotDemo = () => {
                               <ToolHeader
                                 name={toolType}
                                 type={`tool-${toolType}`}
-                                state={(part as any).state}
+                                state={(part as DynamicToolUIPart).state}
                               />
                             </Tool>
                           );

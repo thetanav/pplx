@@ -22,6 +22,11 @@ export const models = [
     icon: RouteIcon,
   },
   {
+    name: "Grok Code Fast 1",
+    value: "x-ai/grok-code-fast-1",
+    icon: RouteIcon,
+  },
+  {
     name: "Deepseek R1",
     value: "deepseek/deepseek-r1-0528:free",
     icon: BrainIcon,
@@ -57,6 +62,8 @@ export function getModel(model: string) {
   switch (model) {
     case "openrouter/sonoma-sky-alpha":
       return openrouter.chat("openrouter/sonoma-sky-alpha");
+    case "x-ai/grok-code-fast-1":
+      return openrouter.chat("x-ai/grok-code-fast-1");
     case "deepseek/deepseek-r1-0528:free":
       return openrouter.chat("deepseek/deepseek-r1-0528:free");
     case "deepseek/deepseek-chat-v3.1:free":

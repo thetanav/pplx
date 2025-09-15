@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type BranchContextType = {
   currentBranch: number;
@@ -82,7 +82,10 @@ export type BranchMessagesProps = HTMLAttributes<HTMLDivElement>;
 
 export const BranchMessages = ({ children, ...props }: BranchMessagesProps) => {
   const { currentBranch, setBranches, branches } = useBranch();
-  const childrenArray = Array.isArray(children) ? children : [children];
+  const childrenArray = useMemo(
+    () => (Array.isArray(children) ? children : [children]),
+    [children]
+  );
 
   // Use useEffect to update branches when they change
   useEffect(() => {
@@ -98,8 +101,7 @@ export const BranchMessages = ({ children, ...props }: BranchMessagesProps) => {
         index === currentBranch ? "block" : "hidden"
       )}
       key={branch.key}
-      {...props}
-    >
+      {...props}>
       {branch}
     </div>
   ));
@@ -156,8 +158,7 @@ export const BranchPrevious = ({
       size="icon"
       type="button"
       variant="ghost"
-      {...props}
-    >
+      {...props}>
       {children ?? <ChevronLeftIcon size={14} />}
     </Button>
   );
@@ -186,8 +187,7 @@ export const BranchNext = ({
       size="icon"
       type="button"
       variant="ghost"
-      {...props}
-    >
+      {...props}>
       {children ?? <ChevronRightIcon size={14} />}
     </Button>
   );
@@ -204,8 +204,7 @@ export const BranchPage = ({ className, ...props }: BranchPageProps) => {
         "font-medium text-muted-foreground text-xs tabular-nums",
         className
       )}
-      {...props}
-    >
+      {...props}>
       {currentBranch + 1} of {totalBranches}
     </span>
   );

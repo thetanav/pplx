@@ -8,6 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, GlobeIcon } from "lucide-react";
 import type { ComponentProps } from "react";
+import NextImage from "next/image";
 
 export type SourcesProps = ComponentProps<typeof Collapsible> & {
   open?: boolean;
@@ -72,13 +73,14 @@ export const Source = ({ href, title, children, ...props }: SourceProps) => (
     {...props}>
     {children ?? (
       <>
-        <img
+        <NextImage
           src={`https://www.google.com/s2/favicons?domain=${
             new URL(href!).hostname
           }&sz=64`}
           alt="favicon"
           width={16}
           height={16}
+          unoptimized
         />
         <span className="block font-medium text-xs">{title}</span>
       </>

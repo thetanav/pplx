@@ -19,8 +19,6 @@ import {
 } from "react";
 import { Response } from "./response";
 import Shimmer from "./shimmer";
-import { BlurFade } from "@/components/magicui/blur-fade";
-import ProgressiveBlur from "../magicui/progressive-blur";
 
 type ReasoningContextValue = {
   isStreaming: boolean;
@@ -132,7 +130,7 @@ const getThinkingMessage = (isStreaming: boolean, duration?: number) => {
 
 export const ReasoningTrigger = memo(
   ({ className, children, ...props }: ReasoningTriggerProps) => {
-    const { isStreaming, isOpen, duration } = useReasoning();
+    const { isStreaming, duration } = useReasoning();
 
     return (
       <CollapsibleTrigger

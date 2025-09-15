@@ -19,15 +19,14 @@ import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
   ArrowUp,
-  ImageIcon,
   Loader2Icon,
   PaperclipIcon,
   PinIcon,
   PlusIcon,
-  SendIcon,
   SquareIcon,
   XIcon,
 } from "lucide-react";
+import NextImage from "next/image";
 import { nanoid } from "nanoid";
 import {
   type ChangeEventHandler,
@@ -90,7 +89,7 @@ export function PromptInputAttachment({
       key={data.id}
       {...props}>
       {data.mediaType?.startsWith("image/") && data.url ? (
-        <img
+        <NextImage
           alt={data.filename || "attachment"}
           className="size-full object-cover border rounded-2xl"
           height={56}

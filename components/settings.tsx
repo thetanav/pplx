@@ -5,11 +5,7 @@ import { Button } from "./ui/button";
 import { ModeToggle } from "./theme_toggle";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
