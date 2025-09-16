@@ -7,6 +7,7 @@ import {
   ToolSet,
   tool,
   InferUITools,
+  stepCountIs,
 } from "ai";
 import { getModel } from "@/lib/models";
 import { z } from "zod";
@@ -58,8 +59,9 @@ export async function POST(req: Request) {
     model: getModel(model) as LanguageModel,
     messages: convertToModelMessages(messages),
     system:
-      "You are a helpful assistant that can answer questions and help with tasks",
+      "You are a helpful assistant that can answer questions and help with tasks. When you use tools, always provide a response explaining what you found or did with the tool results.",
     tools: useTool ? tools : undefined,
+    stopWhen: stepCountIs(20),
   });
 
   return result.toUIMessageStreamResponse({

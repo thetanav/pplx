@@ -45,13 +45,7 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@/components/ai-elements/tool";
+import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 
 const ChatBotDemo = () => {
@@ -139,15 +133,18 @@ const ChatBotDemo = () => {
                             </Reasoning>
                           );
                         case part.type.startsWith("tool-"):
+                          const dyn = part as DynamicToolUIPart;
                           const toolType = part.type.replace("tool-", "");
+
+                          // Show tool during execution and when output is available
                           return (
                             <Tool
-                              defaultOpen={true}
+                              defaultOpen={dyn.state === "output-available"}
                               key={`${message.id}-${i}-${toolType}`}>
                               <ToolHeader
                                 name={toolType}
                                 type={`tool-${toolType}`}
-                                state={(part as DynamicToolUIPart).state}
+                                state={dyn.state}
                               />
                             </Tool>
                           );

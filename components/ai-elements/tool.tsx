@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { ToolUIPart } from "ai";
-import { WrenchIcon } from "lucide-react";
+import { AtomIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { CodeBlock } from "./code-block";
 import Shimmer from "./shimmer";
@@ -39,11 +39,11 @@ export const ToolHeader = ({
     )}
     {...props}>
     <div className="flex items-center justify-center">
-      <WrenchIcon className="size-4 text-primary mr-2" />
+      <AtomIcon className="size-4 text-primary mr-2" />
       {state != "output-available" ? (
-        <Shimmer text={type} />
+        <Shimmer text={`Calling ${name}...`} />
       ) : (
-        <span className="font-medium text-muted-foreground text-sm">
+        <span className="text-muted-foreground text-sm">
           Tool called {name}
         </span>
       )}
