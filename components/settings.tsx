@@ -23,7 +23,11 @@ export default function Menu() {
           <DialogTitle>Developer</DialogTitle>
           <div>
             Developed by{" "}
-            <a className="hover:underline" href="https://tanavindev.tech">
+            <a
+              className="hover:underline"
+              href="https://tanavindev.tech"
+              target="_blank"
+              rel="noopener noreferrer">
               tanav
             </a>
           </div>

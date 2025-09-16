@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.14",
@@ -42,6 +44,7 @@
     "react-dom": "19.1.0",
     "react-syntax-highlighter": "^15.6.6",
     "shiki": "^3.12.2",
+    "sonner": "^2.0.7",
     "streamdown": "^1.2.0",
     "tailwind-merge": "^3.3.1",
     "tokenlens": "^1.2.1",

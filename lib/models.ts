@@ -17,7 +17,7 @@ const openrouter = createOpenRouter({
 
 export const models = [
   {
-    name: "Sonom Sky Alpha",
+    name: "Sonoma Sky Alpha",
     value: "openrouter/sonoma-sky-alpha",
     icon: RouteIcon,
   },

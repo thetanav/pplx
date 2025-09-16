@@ -47,13 +47,23 @@ import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
 import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
+import { toast } from "sonner";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
   const [web, setWeb] = useState<boolean>(false);
   const [useTool, setUseTool] = useState<boolean>(false);
-  const { messages, sendMessage, status, regenerate, stop } = useChat();
+  const { messages, sendMessage, status, regenerate, stop } = useChat({
+    onError: (error) => {
+      const message =
+        (error as { message?: string })?.message ||
+        "Something went wrong while contacting the server.";
+      toast.error("Request failed", {
+        description: message,
+      });
+    },
+  });
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);

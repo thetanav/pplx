@@ -13,6 +13,10 @@ export function ModeToggle() {
     <Button
       variant="outline"
       size="icon"
+      aria-pressed={theme === "dark"}
+      title={
+        theme === "light" ? "Switch to dark theme" : "Switch to light theme"
+      }
       onClick={() => {
         if (theme == "light") {
           setTheme("dark");
