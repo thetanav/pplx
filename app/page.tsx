@@ -28,7 +28,7 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Action, Actions } from "@/components/ai-elements/actions";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
 import { BoxIcon, GlobeIcon, WrenchIcon } from "lucide-react";
@@ -54,6 +54,8 @@ const ChatBotDemo = () => {
   const [model, setModel] = useState<string>(models[0].value);
   const [web, setWeb] = useState<boolean>(false);
   const [useTool, setUseTool] = useState<boolean>(false);
+  const LS_MODEL_KEY = "settings:model";
+  const LS_MCP_KEY = "settings:mcpServers";
   const { messages, sendMessage, status, regenerate, stop } = useChat({
     onError: (error) => {
       const message =
@@ -64,6 +66,28 @@ const ChatBotDemo = () => {
       });
     },
   });
+
+  useEffect(() => {
+    try {
+      const storedModel = localStorage.getItem(LS_MODEL_KEY);
+      if (storedModel) setModel(storedModel);
+    } catch {}
+  }, []);
+
+  const activeMcpUrl = useMemo(() => {
+    try {
+      const storedServers = localStorage.getItem(LS_MCP_KEY);
+      if (!storedServers) return undefined;
+      const list = JSON.parse(storedServers) as {
+        url: string;
+        active?: boolean;
+      }[];
+      const active = list.find((s) => s.active);
+      return active?.url;
+    } catch {
+      return undefined;
+    }
+  }, [useTool]);
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -82,6 +106,7 @@ const ChatBotDemo = () => {
         body: {
           model: web ? "sonar" : model,
           useTool,
+          mcpGatewayUrl: useTool ? activeMcpUrl : undefined,
         },
       }
     );

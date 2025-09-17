@@ -1,4 +1,7 @@
-- [ ] support for mcp
+- [x] support for mcp
+- [x] local mcp
+- [x] tools
 - [ ] ollama models
-- [ ] local mcp
-- [ ] tools
+- [ ] more tools
+- [ ] custom instructions
+- [ ] own api keys

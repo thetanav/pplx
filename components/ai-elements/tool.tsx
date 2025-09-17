@@ -41,7 +41,7 @@ export const ToolHeader = ({
     <div className="flex items-center justify-center">
       <AtomIcon className="size-4 text-primary mr-2" />
       {state != "output-available" ? (
-        <Shimmer text={`Calling ${name}...`} />
+        <Shimmer text={`Tool call ${name}...`} />
       ) : (
         <span className="text-muted-foreground text-sm">
           Tool called {name}

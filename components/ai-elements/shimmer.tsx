@@ -1,9 +1,11 @@
+"use client";
+
 export default function Shimmer({ text = "thinking...", className = "" }) {
   return (
     <div className={`inline-block ${className} select-none`}>
       <div className="relative overflow-hidden">
         {/* Base text */}
-        <span className="text-primary/10">{text}</span>
+        <span className="text-primary/20">{text}</span>
 
         {/* Shimmering overlay */}
         <div

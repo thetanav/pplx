@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
 import Menu from "@/components/settings";
 import { Toaster } from "sonner";
+import Shimmer from "@/components/ai-elements/shimmer";
 
 const sans = Space_Grotesk({
   subsets: ["latin"],
@@ -12,15 +13,15 @@ const sans = Space_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://pplx.local"),
   title: {
-    default: "PPLX Chat",
-    template: "%s • PPLX Chat",
+    default: "Simp Chat",
+    template: "%s • Simp Chat",
   },
-  description:
-    "Chat UI with models from OpenRouter, Groq, Google and Perplexity",
-  applicationName: "PPLX Chat",
+  description: "Simp chat with lots of models and mcp client.",
+  applicationName: "Simp Chat",
   keywords: [
     "AI",
     "chat",
+    "mcp client",
     "Next.js",
     "OpenRouter",
     "Groq",
@@ -31,17 +32,15 @@ export const metadata: Metadata = {
   creator: "tanav",
   openGraph: {
     type: "website",
-    title: "PPLX Chat",
-    description:
-      "Chat UI with models from OpenRouter, Groq, Google and Perplexity",
+    title: "Simp Chat",
+    description: "Simp chat with lots of models and mcp client.",
     url: "/",
-    siteName: "PPLX Chat",
+    siteName: "Simp Chat",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PPLX Chat",
-    description:
-      "Chat UI with models from OpenRouter, Groq, Google and Perplexity",
+    title: "Simp Chat",
+    description: "Simp chat with lots of models and mcp client.",
     creator: "@tanav",
   },
   icons: {

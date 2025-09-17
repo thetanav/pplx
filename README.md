@@ -38,3 +38,9 @@ pnpm check     # lint + typecheck
 
 - Theme toggles follow system preference by default and work without flashes.
 - Metadata and social tags are configured in `app/layout.tsx`.
+
+## Starting docker mcp server
+
+```bash
+docker mcp gateway run --port=8811 --transport=sse
+```
