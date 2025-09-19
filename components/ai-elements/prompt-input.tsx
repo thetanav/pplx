@@ -85,31 +85,29 @@ export function PromptInputAttachment({
 
   return (
     <div
-      className={cn("group relative h-14 w-14", className)}
+      className={cn("group relative h-16 w-16", className)}
       key={data.id}
       {...props}>
       {data.mediaType?.startsWith("image/") && data.url ? (
         <NextImage
           alt={data.filename || "attachment"}
-          className="size-full object-cover border rounded-2xl"
-          height={56}
+          className="size-full object-cover border rounded-lg"
+          height={72}
           src={data.url}
-          width={56}
+          width={72}
         />
       ) : (
-        <div className="flex size-full items-center justify-center text-muted-foreground border rounded-2xl">
+        <div className="flex size-full items-center justify-center text-muted-foreground border rounded-xl">
           <PaperclipIcon className="size-4" />
         </div>
       )}
-      <Button
+      <button
         aria-label="Remove attachment"
-        className="-right-1.5 -top-1.5 absolute h-6 w-6 rounded-full opacity-0 group-hover:opacity-100"
+        className="-right-1.5 -top-1.5 absolute h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 bg-background flex items-center justify-center cursor-pointer border"
         onClick={() => attachments.remove(data.id)}
-        size="icon"
-        type="button"
-        variant="outline">
+        type="button">
         <XIcon className="h-3 w-3" />
-      </Button>
+      </button>
     </div>
   );
 }
@@ -152,7 +150,7 @@ export function PromptInputAttachments({
       )}
       style={{ height: attachments.files.length ? height : 0 }}
       {...props}>
-      <div className="flex flex-wrap gap-2 p-3 pt-3" ref={contentRef}>
+      <div className="flex flex-wrap gap-2 p-3 pb-0" ref={contentRef}>
         {attachments.files.map((file) => (
           <Fragment key={file.id}>{children(file)}</Fragment>
         ))}
@@ -180,7 +178,7 @@ export const PromptInputActionAddAttachments = ({
         e.preventDefault();
         attachments.openFileDialog();
       }}>
-      <PinIcon className="mr-2 size-4" /> {label}
+      <PinIcon className="size-4" /> {label}
     </DropdownMenuItem>
   );
 };
@@ -423,7 +421,7 @@ export const PromptInput = ({
       />
       <form
         className={cn(
-          "w-full overflow-hidden rounded-3xl border bg-background dark:bg-neutral-900/40 shadow-md",
+          "w-full overflow-hidden rounded-xl border bg-background dark:bg-neutral-900/40 shadow-md select-none",
           className
         )}
         onSubmit={handleSubmit}
@@ -447,7 +445,7 @@ export type PromptInputTextareaProps = ComponentProps<typeof Textarea>;
 export const PromptInputTextarea = ({
   onChange,
   className,
-  placeholder = "What would you like to know?",
+  placeholder = "What would you like to do?",
   ...props
 }: PromptInputTextareaProps) => {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -474,9 +472,9 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        "w-full resize-none rounded-none border-none p-4 shadow-none outline-none ring-0",
+        "w-full resize-none rounded-none border-none p-4 pt-3 pb-0 shadow-none outline-none ring-0",
         "field-sizing-content bg-transparent dark:bg-transparent",
-        "max-h-48 min-h-8",
+        "max-h-48 min-h-2",
         "focus-visible:ring-0",
         className
       )}
@@ -512,7 +510,7 @@ export const PromptInputTools = ({
   <div
     className={cn(
       "flex items-center gap-1",
-      "[&_button]:rounded-full",
+      "[&_button]:rounded-lg",
       className
     )}
     {...props}
@@ -535,7 +533,7 @@ export const PromptInputButton = ({
       className={cn(
         "shrink-0 gap-1.5 rounded-full cursor-pointer",
         variant === "ghost" && "text-muted-foreground",
-        newSize === "default" && "px-3",
+        newSize === "default",
         className
       )}
       size={newSize}
@@ -595,28 +593,28 @@ export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
 };
 
 export const PromptInputSubmit = ({
-  className,
+  className = "px-2 py-1",
   variant = "default",
-  size = "icon",
+  size = "sm",
   status,
   stop,
   children,
   ...props
 }: PromptInputSubmitProps) => {
-  let Icon = <ArrowUp className="size-4 stroke-2" />;
+  let Icon = <ArrowUp className="size-5" />;
 
   if (status === "submitted") {
-    Icon = <Loader2Icon className="size-4 animate-spin" />;
+    Icon = <Loader2Icon className="size-5 animate-spin" />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-4" />;
+    Icon = <SquareIcon className="size-5" />;
   } else if (status === "error") {
-    Icon = <XIcon className="size-4" />;
+    Icon = <XIcon className="size-5" />;
   }
 
   return (
     <Button
-      className={cn("gap-1.5 rounded-full", className)}
-      size={size}
+      className={cn("gap-1.5 rounded-lg", className)}
+      size="sm"
       type="submit"
       variant={variant}
       onClick={() => {
@@ -645,7 +643,7 @@ export const PromptInputModelSelectTrigger = ({
   <SelectTrigger
     className={cn(
       "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
-      'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
+      'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground text-xs',
       className
     )}
     {...props}

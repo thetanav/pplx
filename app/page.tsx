@@ -31,7 +31,7 @@ import { Action, Actions } from "@/components/ai-elements/actions";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
-import { BoxIcon, GlobeIcon, WrenchIcon } from "lucide-react";
+import { AtomIcon, BoxIcon, GlobeIcon, WrenchIcon } from "lucide-react";
 import {
   Source,
   Sources,
@@ -48,11 +48,15 @@ import { models } from "@/lib/models";
 import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
-  const [web, setWeb] = useState<boolean>(false);
   const [useTool, setUseTool] = useState<boolean>(false);
   const LS_MODEL_KEY = "settings:model";
   const LS_MCP_KEY = "settings:mcpServers";
@@ -104,7 +108,7 @@ const ChatBotDemo = () => {
       },
       {
         body: {
-          model: web ? "sonar" : model,
+          model: model,
           useTool,
           mcpGatewayUrl: useTool ? activeMcpUrl : undefined,
         },
@@ -167,7 +171,8 @@ const ChatBotDemo = () => {
                               <ReasoningContent>{part.text}</ReasoningContent>
                             </Reasoning>
                           );
-                        case part.type.startsWith("tool-"):
+                        case part.type.startsWith("tool-") ||
+                          part.type == "dynamic-tool":
                           const dyn = part as DynamicToolUIPart;
                           const toolType = part.type.replace("tool-", "");
 
@@ -215,20 +220,18 @@ const ChatBotDemo = () => {
                   <PromptInputActionAddAttachments />
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
-              <PromptInputButton
-                onClick={() => {
-                  setWeb(!web);
-                }}
-                variant={web ? "default" : "ghost"}>
-                <GlobeIcon size={16} />
-              </PromptInputButton>
-              <PromptInputButton
-                onClick={() => {
-                  setUseTool(!useTool);
-                }}
-                variant={useTool ? "default" : "ghost"}>
-                <WrenchIcon size={16} />
-              </PromptInputButton>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PromptInputButton
+                    onClick={() => {
+                      setUseTool(!useTool);
+                    }}
+                    variant={useTool ? "default" : "ghost"}>
+                    <AtomIcon />
+                  </PromptInputButton>
+                </TooltipTrigger>
+                <TooltipContent>Tools</TooltipContent>
+              </Tooltip>
               <PromptInputModelSelect
                 onValueChange={(value) => {
                   setModel(value);

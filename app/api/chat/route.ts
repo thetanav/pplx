@@ -14,39 +14,10 @@ import {
 } from "ai";
 import { getModel } from "@/lib/models";
 
-export const maxDuration = 30; // seconds (kept from your original file)
+export const maxDuration = 30;
 
-// -----------------------------
-// Local tools (server-side) — simple examples
-// -----------------------------
 const localTools = {
-  getTime: tool({
-    description: "Returns the current time in ISO format",
-    inputSchema: z.object({}).optional(),
-    execute: async () => ({ time: new Date().toISOString() }),
-  }),
-
-  getWeather: tool({
-    description: "Fetch weather information for a specific location (demo)",
-    inputSchema: z.object({ location: z.string().describe("Location name") }),
-    execute: async ({ location }, { toolCallId }) => {
-      const code = Array.from(location || "").reduce(
-        (s, c) => s + c.charCodeAt(0),
-        0
-      );
-      const temp = 10 + (code % 25);
-
-      return {
-        toolCallId,
-        location,
-        temperature: `${temp}°C`,
-        conditions: "Partly Cloudy",
-        humidity: `${30 + (code % 50)}%`,
-        windSpeed: `${5 + (code % 40)} km/h`,
-        lastUpdated: new Date().toISOString(),
-      };
-    },
-  }),
+  // make tools here
 } satisfies ToolSet;
 
 export type ChatTools = InferUITools<typeof localTools>;
@@ -56,6 +27,7 @@ const RequestBodySchema = z.object({
   messages: z.array(z.unknown()),
   model: z.string().optional(),
   useTool: z.boolean().optional().default(true),
+  // remove it from here
   mcpGatewayUrl: z.string().url().optional(),
 });
 
@@ -102,38 +74,35 @@ export async function POST(req: Request) {
         MCP_GATEWAY_URL,
         err
       );
-      // fallback: continue with local tools only
       mcpClient = undefined;
     }
   }
 
-  // Build the streamText call
   const result = streamText({
     model: getModel(model) as LanguageModel,
-    // Convert UI messages to model messages (the helper handles shapes from useChat)
     messages: convertToModelMessages(messages as any),
-    system:
-      "You are a helpful assistant. When you use tools, always produce a human-friendly summary explaining what you found and how it answers the user's question.",
+    system: `You are an agentic AI assistant.
+
+            - Your goal is to complete the user’s request using the best available tools and MCP servers.
+            - Always perform the task directly.
+            - When you use tools, write a short, human-like explanation of what you are doing or found, in clear and concise text.
+            - Do not show long reasoning, technical logs, or hidden details.
+            - Keep answers natural, to the point, and without emojis.`,
     tools: useTool ? mergedTools : undefined,
     stopWhen: stepCountIs(20),
-    // allow the request to be aborted by the incoming request signal
     abortSignal: (req as any).signal,
     maxOutputTokens: 1200,
     onError: (err) => {
-      // Log server-side errors (keeps stream alive where possible)
       console.error("streamText error:", err);
     },
   });
 
-  // Return a UIMessage stream response. We provide originalMessages so the client
-  // can reconcile server-side IDs, and we generate server-side stable message IDs.
   return result.toUIMessageStreamResponse({
     originalMessages: messages as ChatMessage[],
     generateMessageId: createIdGenerator({ prefix: "msg", size: 12 }),
     sendSources: true,
     sendReasoning: true,
 
-    // Cleanup: ensure MCP client is closed once the stream finishes
     onFinish: async () => {
       if (mcpClient) {
         try {
