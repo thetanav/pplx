@@ -27,7 +27,6 @@ export type ToolHeaderProps = {
 
 export const ToolHeader = ({
   className,
-  type,
   state,
   name,
   ...props

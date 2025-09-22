@@ -1,22 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-  InfoIcon,
-  PlusIcon,
-  TrashIcon,
-  Settings2Icon,
-  SettingsIcon,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { PlusIcon, TrashIcon, SettingsIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { ModeToggle } from "./theme_toggle";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -28,16 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { models } from "@/lib/models";
-import { tools } from "@/lib/tools";
+import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
-
-type McpServer = {
-  name: string;
-  url: string;
-  active?: boolean;
-};
 
 const LS_MODEL_KEY = "settings:model";
 const LS_MCP_KEY = "settings:mcpServers";
@@ -73,13 +58,14 @@ export default function Menu() {
     } catch {}
   }, [mcpServers]);
 
-  const activeServerIndex = useMemo(
-    () => mcpServers.findIndex((s) => s.active),
-    [mcpServers]
-  );
-
   const addServer = () => {
     if (!newServerUrl.trim()) return;
+    try {
+      new URL(newServerUrl.trim()); // validate URL
+    } catch {
+      toast.error("Invalid URL", { description: "Please enter a valid URL." });
+      return;
+    }
     const server: McpServer = {
       name: newServerName.trim() || new URL(newServerUrl).host,
       url: newServerUrl.trim(),
@@ -88,6 +74,9 @@ export default function Menu() {
     setMcpServers((prev) => [...prev, server]);
     setNewServerName("");
     setNewServerUrl("");
+    toast.success("MCP server added", {
+      description: `${server.name} has been added.`,
+    });
   };
 
   const removeServer = (index: number) => {
@@ -100,15 +89,28 @@ export default function Menu() {
     });
   };
 
-  const setActiveServer = (index: number) => {
-    setMcpServers((prev) =>
-      prev.map((s, i) => ({ ...s, active: i === index }))
-    );
+  const testServer = async (url: string) => {
+    try {
+      const response = await fetch(url, { method: "HEAD" });
+      if (response.ok) {
+        toast.success("Connection successful", {
+          description: "MCP server is reachable.",
+        });
+      } else {
+        toast.error("Connection failed", {
+          description: `Server responded with ${response.status}.`,
+        });
+      }
+    } catch {
+      toast.error("Connection failed", {
+        description: "Unable to reach the MCP server.",
+      });
+    }
   };
 
   return (
     <div className="fixed top-0 right-0 p-2 gap-1 flex z-50">
-      <ModeToggle />
+      {/* <ModeToggle /> */}
       <Dialog modal={true} open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button size="icon" variant="outline" aria-label="Open settings">
@@ -133,12 +135,6 @@ export default function Menu() {
                   className="w-full justify-start"
                   onClick={() => setSection("mcp")}>
                   MCP Servers
-                </Button>
-                <Button
-                  variant={section === "tools" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setSection("tools")}>
-                  Available Tools
                 </Button>
                 <Button
                   variant={section === "instructions" ? "secondary" : "ghost"}
@@ -233,6 +229,12 @@ export default function Menu() {
                               </p>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => testServer(s.url)}>
+                                Test
+                              </Button>
                               <Button
                                 variant={s.active ? "default" : "outline"}
                                 onClick={() => setActiveServer(i)}>

@@ -1,26 +1,25 @@
 "use client";
 
-export default function Shimmer({ text = "thinking...", className = "" }) {
+export default function Shimmer({ text = "thinking ...", className = "" }) {
   return (
     <div className={`inline-block ${className} select-none`}>
       <div className="relative overflow-hidden">
         {/* Base text */}
-        <span className="text-primary/20">{text}</span>
+        <span className="text-primary/30">{text}</span>
 
         {/* Shimmering overlay */}
         <div
-          className="absolute bg-clip-text text-transparent bg-gradient-to-r from-transparent via-primary to-transparent z-10 top-0 left-0 right-0 bottom-0"
+          className="absolute bg-clip-text text-transparent bg-gradient-to-r from-transparent via-black to-transparent z-10 top-0 left-0 right-0 [background-size:50%_100%] [background-repeat:no-repeat]"
           style={{
-            backgroundSize: "200% 100%",
-            animation: "wave 2s linear infinite",
+            animation: "wave 1s linear infinite",
           }}>
           <style jsx>{`
             @keyframes wave {
               0% {
-                background-position: 200% 0;
+                background-position: -150% 0;
               }
               100% {
-                background-position: -200% 0;
+                background-position: 200% 0;
               }
             }
           `}</style>

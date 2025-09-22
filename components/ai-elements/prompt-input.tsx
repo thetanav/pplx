@@ -595,7 +595,6 @@ export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
 export const PromptInputSubmit = ({
   className = "px-2 py-1",
   variant = "default",
-  size = "sm",
   status,
   stop,
   children,

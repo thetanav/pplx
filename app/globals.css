@@ -120,6 +120,10 @@
     @apply bg-background text-foreground;
   }
 
+  ::selection {
+    @apply bg-primary/10;
+  }
+
   * {
     -ms-overflow-style: none; /* IE & Edge */
     scrollbar-width: none; /* Firefox */
@@ -127,14 +131,5 @@
 
   *::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }

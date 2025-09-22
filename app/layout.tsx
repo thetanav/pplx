@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
 import Menu from "@/components/settings";
 import { Toaster } from "sonner";
-import Shimmer from "@/components/ai-elements/shimmer";
 
-const sans = Space_Grotesk({
+const sans = Inter({
   subsets: ["latin"],
 });
 
@@ -67,8 +66,7 @@ export default function RootLayout({
         className={`${sans.className} antialiased min-h-screen bg-background`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange>
           <Menu />
           <Toaster position="top-right" richColors closeButton />

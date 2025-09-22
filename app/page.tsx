@@ -27,11 +27,10 @@ import {
   PromptInputToolbar,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
-import { Action, Actions } from "@/components/ai-elements/actions";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
-import { AtomIcon, BoxIcon, GlobeIcon, WrenchIcon } from "lucide-react";
+
 import {
   Source,
   Sources,
@@ -48,19 +47,13 @@ import { models } from "@/lib/models";
 import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
-  const [useTool, setUseTool] = useState<boolean>(false);
   const LS_MODEL_KEY = "settings:model";
   const LS_MCP_KEY = "settings:mcpServers";
-  const { messages, sendMessage, status, regenerate, stop } = useChat({
+  const { messages, sendMessage, status, stop } = useChat({
     onError: (error) => {
       const message =
         (error as { message?: string })?.message ||
@@ -91,7 +84,7 @@ const ChatBotDemo = () => {
     } catch {
       return undefined;
     }
-  }, [useTool]);
+  }, []);
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -109,8 +102,7 @@ const ChatBotDemo = () => {
       {
         body: {
           model: model,
-          useTool,
-          mcpGatewayUrl: useTool ? activeMcpUrl : undefined,
+          mcpGatewayUrl: activeMcpUrl,
         },
       }
     );
@@ -220,18 +212,6 @@ const ChatBotDemo = () => {
                   <PromptInputActionAddAttachments />
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PromptInputButton
-                    onClick={() => {
-                      setUseTool(!useTool);
-                    }}
-                    variant={useTool ? "default" : "ghost"}>
-                    <AtomIcon />
-                  </PromptInputButton>
-                </TooltipTrigger>
-                <TooltipContent>Tools</TooltipContent>
-              </Tooltip>
               <PromptInputModelSelect
                 onValueChange={(value) => {
                   setModel(value);

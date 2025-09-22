@@ -2,33 +2,22 @@ import { z } from "zod";
 import {
   streamText,
   convertToModelMessages,
-  tool,
-  ToolSet,
-  InferUITools,
-  UIMessage,
-  UIDataTypes,
   stepCountIs,
-  experimental_createMCPClient,
-  createIdGenerator,
   LanguageModel,
+  experimental_createMCPClient,
 } from "ai";
-import { getModel } from "@/lib/models";
+import { getModel, models } from "@/lib/models";
+import { localTools } from "@/lib/tools";
+import { systemPrompt } from "@/lib/prompt";
 
 export const maxDuration = 30;
 
-const localTools = {
-  // make tools here
-} satisfies ToolSet;
-
-export type ChatTools = InferUITools<typeof localTools>;
-export type ChatMessage = UIMessage<never, UIDataTypes, ChatTools>;
+export type ChatTools = typeof localTools;
 
 const RequestBodySchema = z.object({
   messages: z.array(z.unknown()),
-  model: z.string().optional(),
-  useTool: z.boolean().optional().default(true),
-  // remove it from here
-  mcpGatewayUrl: z.string().url().optional(),
+  model: z.string(),
+  mcpGatewayUrl: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -48,32 +37,28 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages, model = "default", useTool, mcpGatewayUrl } = parsed.data;
-  const MCP_GATEWAY_URL = mcpGatewayUrl || process.env.MCP_GATEWAY_URL;
+  const { messages, model, mcpGatewayUrl } = parsed.data;
 
   let mcpClient:
     | Awaited<ReturnType<typeof experimental_createMCPClient>>
     | undefined;
-  let mergedTools: ToolSet = localTools;
+  let mergedTools = localTools;
 
-  if (useTool && MCP_GATEWAY_URL) {
+  // Connect to MCP server if URL is provided
+  if (mcpGatewayUrl) {
     try {
       mcpClient = await experimental_createMCPClient({
-        name: "ultraproai-mcp-client",
-        transport: { type: "sse", url: MCP_GATEWAY_URL },
+        name: "simp-ai-mcp-client",
+        transport: { type: "sse", url: mcpGatewayUrl },
       });
 
-      // fetch tools from the MCP server and merge them with local tools
-      const mcpTools = await mcpClient!.tools();
+      // Fetch tools from the MCP server and merge them with local tools
+      const mcpTools = await mcpClient.tools();
       mergedTools = { ...localTools, ...mcpTools };
 
-      console.log("MCP tools loaded:", Object.keys(mcpTools));
+      // console.log("MCP tools loaded:", Object.keys(mcpTools));
     } catch (err) {
-      console.error(
-        "Failed to connect to MCP Gateway at",
-        MCP_GATEWAY_URL,
-        err
-      );
+      console.error("Failed to connect to MCP Gateway at", mcpGatewayUrl, err);
       mcpClient = undefined;
     }
   }
@@ -81,28 +66,18 @@ export async function POST(req: Request) {
   const result = streamText({
     model: getModel(model) as LanguageModel,
     messages: convertToModelMessages(messages as any),
-    system: `You are an agentic AI assistant.
-
-            - Your goal is to complete the user’s request using the best available tools and MCP servers.
-            - Always perform the task directly.
-            - When you use tools, write a short, human-like explanation of what you are doing or found, in clear and concise text.
-            - Do not show long reasoning, technical logs, or hidden details.
-            - Keep answers natural, to the point, and without emojis.`,
-    tools: useTool ? mergedTools : undefined,
+    system: systemPrompt,
+    tools: models.find((m) => m.value === model)?.tools
+      ? mergedTools
+      : undefined,
     stopWhen: stepCountIs(20),
-    abortSignal: (req as any).signal,
-    maxOutputTokens: 1200,
+    maxOutputTokens: 4000,
     onError: (err) => {
       console.error("streamText error:", err);
     },
   });
 
   return result.toUIMessageStreamResponse({
-    originalMessages: messages as ChatMessage[],
-    generateMessageId: createIdGenerator({ prefix: "msg", size: 12 }),
-    sendSources: true,
-    sendReasoning: true,
-
     onFinish: async () => {
       if (mcpClient) {
         try {
