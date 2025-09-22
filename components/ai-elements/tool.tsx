@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { ToolUIPart } from "ai";
-import { AtomIcon } from "lucide-react";
+import { AtomIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { CodeBlock } from "./code-block";
 import Shimmer from "./shimmer";
@@ -31,6 +31,7 @@ export const ToolHeader = ({
   name,
   ...props
 }: ToolHeaderProps) => (
+  // @ts-ignore
   <CollapsibleTrigger
     className={cn(
       "flex w-full items-center justify-between gap-4 p-0",
@@ -38,14 +39,15 @@ export const ToolHeader = ({
     )}
     {...props}>
     <div className="flex items-center justify-center">
-      <AtomIcon className="size-4 text-primary mr-2" />
+      <AtomIcon className="size-3 text-muted-foreground mr-2" />
       {state != "output-available" ? (
         <Shimmer text={`Tool call ${name}...`} />
       ) : (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-muted-foreground text-xs">
           Tool called {name}
         </span>
       )}
+      <ChevronDownIcon className="size-3 ml-2" />
     </div>
   </CollapsibleTrigger>
 );

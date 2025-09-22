@@ -44,8 +44,14 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
-import { Tool, ToolHeader } from "@/components/ai-elements/tool";
-import { DynamicToolUIPart } from "ai";
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from "@/components/ai-elements/tool";
+import { DynamicToolUIPart, tool } from "ai";
 import { toast } from "sonner";
 
 const ChatBotDemo = () => {
@@ -178,6 +184,10 @@ const ChatBotDemo = () => {
                                 type={`tool-${toolType}`}
                                 state={dyn.state}
                               />
+                              <ToolContent>
+                                <ToolInput input={dyn.input} />
+                                <ToolOutput errorText="" output={dyn.output} />
+                              </ToolContent>
                             </Tool>
                           );
                         default:

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { tool } from "ai";
 import { search, SafeSearchType } from "duck-duck-scrape";
+import Error from "next/error";
 
 export const localTools = {
   time: tool({
@@ -38,129 +39,27 @@ export const localTools = {
     },
   }),
   search: tool({
-    description: "Search the web using DuckDuckGo for more context",
+    description: "Search the web.",
     inputSchema: z.object({
-      query: z.string().describe("Search query"),
-      limit: z
+      query: z.string().describe("The search query to look up"),
+      maxResults: z
         .number()
         .optional()
         .default(5)
-        .describe("Number of results to return"),
+        .describe("Maximum number of results to return"),
     }),
-    execute: async ({ query, limit }) => {
-      try {
-        const searchResults = await search(query, {
-          safeSearch: SafeSearchType.STRICT,
-          locale: "en-US",
-        });
-        
-        // Ensure we have results and limit them
-        const results = searchResults?.results || [];
-        const limitedResults = results.slice(0, limit);
-        
-        return {
-          query,
-          results: limitedResults,
-          totalResults: results.length,
-          source: "DuckDuckGo",
-          success: true,
-        };
-      } catch (error) {
-        console.error("Search error:", error);
-        return {
-          query,
-          results: [],
-          totalResults: 0,
-          source: "DuckDuckGo",
-          success: false,
-          error: `Search failed: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`,
-        };
-      }
-    },
-  }),
-  planTask: tool({
-    description: "Create a detailed plan for complex multi-step tasks",
-    inputSchema: z.object({
-      task: z.string().describe("The task to plan"),
-      context: z
-        .string()
-        .optional()
-        .describe("Additional context about the task"),
-    }),
-    execute: async ({ task, context }) => {
-      // Generate a structured plan
-      const plan = {
-        task,
-        context: context || "No additional context provided",
-        steps: [
-          "Analyze the task requirements",
-          "Identify necessary tools and resources",
-          "Break down into actionable steps",
-          "Execute steps in logical order",
-          "Verify results and iterate if needed",
-        ],
-        estimatedComplexity: "medium",
-        recommendedApproach: "Use available tools systematically",
-      };
-      return plan;
-    },
-  }),
-  orchestrateWorkflow: tool({
-    description:
-      "Orchestrate complex workflows by executing multiple tools in sequence",
-    inputSchema: z.object({
-      workflow: z
-        .array(
-          z.object({
-            tool: z.string().describe("Tool name to execute"),
-            parameters: z
-              .object({})
-              .catchall(z.unknown())
-              .describe("Parameters for the tool"),
-            description: z.string().describe("What this step does"),
-          })
-        )
-        .describe("Array of workflow steps"),
-      goal: z.string().describe("Overall goal of the workflow"),
-    }),
-    execute: async ({ workflow, goal }) => {
-      const results = [];
-      let success = true;
-
-      for (const step of workflow) {
-        try {
-          // In a real implementation, this would execute the actual tools
-          // For now, return a mock execution
-          results.push({
-            step: step.description,
-            tool: step.tool,
-            status: "completed",
-            mockResult: `Executed ${step.tool} with params: ${JSON.stringify(
-              step.parameters
-            )}`,
-          });
-        } catch (error) {
-          results.push({
-            step: step.description,
-            tool: step.tool,
-            status: "failed",
-            error: error instanceof Error ? error.message : "Unknown error",
-          });
-          success = false;
-        }
-      }
-      return {
-        goal,
-        totalSteps: workflow.length,
-        completedSteps: results.filter((r) => r.status === "completed").length,
-        success,
-        results,
-        summary: success
-          ? "Workflow completed successfully"
-          : "Workflow had errors",
-      };
+    execute: async ({ query, maxResults = 3 }) => {
+      const response = await fetch(
+        `https://serpapi.com/search.json?engine=google_light&q=${encodeURIComponent(
+          query
+        )}&api_key=${process.env.SERP_API_KEY}&num=${maxResults}`
+      );
+      const data = await response.json();
+      return data.organic_results.map((r: any) => ({
+        title: r.title,
+        link: r.link,
+        snippet: r.snippet,
+      }));
     },
   }),
 };
