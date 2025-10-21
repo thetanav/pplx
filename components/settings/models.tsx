@@ -90,7 +90,7 @@ export default function ChooseModels() {
       } else {
         setOllamaStatus("unreachable");
       }
-    } catch (e) {
+    } catch {
       setOllamaStatus("unreachable");
     }
   }

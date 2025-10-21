@@ -12,7 +12,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Textarea } from "./ui/textarea";
 import ChooseModels from "./settings/models";
 import CustomInstruction from "./settings/instruction";
 

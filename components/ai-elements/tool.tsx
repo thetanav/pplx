@@ -31,7 +31,7 @@ export const ToolHeader = ({
   name,
   ...props
 }: ToolHeaderProps) => (
-  // @ts-ignore
+  // @ts-expect-error: CollapsibleTrigger prop types are incompatible with inferred ToolHeader props
   <CollapsibleTrigger
     className={cn(
       "flex w-full items-center justify-between gap-4 p-0",

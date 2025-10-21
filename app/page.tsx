@@ -15,7 +15,6 @@ import {
   PromptInputAttachment,
   PromptInputAttachments,
   PromptInputBody,
-  PromptInputButton,
   type PromptInputMessage,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
@@ -51,10 +50,9 @@ import {
   ToolInput,
   ToolOutput,
 } from "@/components/ai-elements/tool";
-import { DynamicToolUIPart, tool, type UIMessage } from "ai";
+import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
 import { ArrowDownRightIcon, SmileIcon, WrenchIcon } from "lucide-react";
-import { Image as AiImage } from "@/components/ai-elements/image";
 import Image from "next/image";
 
 const ChatBotDemo = () => {

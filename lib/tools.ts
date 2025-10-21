@@ -53,11 +53,13 @@ export const localTools = {
         )}&api_key=${process.env.SERP_API_KEY}&num=${maxResults}`
       );
       const data = await response.json();
-      return data.organic_results.map((r: any) => ({
-        title: r.title,
-        link: r.link,
-        snippet: r.snippet,
-      }));
+      return data.organic_results.map(
+        (r: { title: string; link: string; snippet: string }) => ({
+          title: r.title,
+          link: r.link,
+          snippet: r.snippet,
+        })
+      );
     },
   }),
 };
