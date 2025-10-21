@@ -1,7 +1,5 @@
 import { z } from "zod";
 import { tool } from "ai";
-import { search, SafeSearchType } from "duck-duck-scrape";
-import Error from "next/error";
 
 export const localTools = {
   time: tool({

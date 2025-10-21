@@ -1,7 +1,10 @@
 - [x] support for mcp
 - [x] local mcp
 - [x] tools
-- [ ] ollama models
-- [ ] more tools
-- [ ] custom instructions
+- [x] ollama models
+- [x] custom instructions
 - [ ] own api keys
+- [ ] working app
+- [ ] some bug fixs
+- [ ] launch - 30 oct 2025
+- [ ] more tools

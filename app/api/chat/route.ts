@@ -6,7 +6,7 @@ import {
   LanguageModel,
   experimental_createMCPClient,
 } from "ai";
-import { getModel, models } from "@/lib/models";
+import { models } from "@/lib/models";
 import { localTools } from "@/lib/tools";
 import { systemPrompt } from "@/lib/prompt";
 
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
   }
 
   const result = streamText({
-    model: getModel(model) as LanguageModel,
+    model: models.find((mo) => mo.value == model)?.end as LanguageModel,
     messages: convertToModelMessages(messages as any),
     system: systemPrompt,
     tools: models.find((m) => m.value === model)?.tools
@@ -85,6 +85,11 @@ export async function POST(req: Request) {
         } catch (e) {
           console.warn("Failed to close MCP client:", e);
         }
+      }
+    },
+    messageMetadata: ({ part }) => {
+      if (part.type === "finish") {
+        return { stats: part.totalUsage };
       }
     },
   });

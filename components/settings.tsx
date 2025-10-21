@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { PlusIcon, TrashIcon, SettingsIcon } from "lucide-react";
+import { useState } from "react";
+import { SettingsIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -11,102 +11,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { models } from "@/lib/models";
-import { toast } from "sonner";
-import { Textarea } from "./ui/textarea";
 
-const LS_MODEL_KEY = "settings:model";
-const LS_MCP_KEY = "settings:mcpServers";
+import { Textarea } from "./ui/textarea";
+import ChooseModels from "./settings/models";
 
 export default function Menu() {
   const [open, setOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<string>(
-    models[0]?.value ?? ""
-  );
-  const [mcpServers, setMcpServers] = useState<McpServer[]>([]);
-  const [newServerName, setNewServerName] = useState("");
-  const [newServerUrl, setNewServerUrl] = useState("");
   const [section, setSection] = useState<string>("model");
-
-  useEffect(() => {
-    try {
-      const storedModel = localStorage.getItem(LS_MODEL_KEY);
-      if (storedModel) setSelectedModel(storedModel);
-      const storedServers = localStorage.getItem(LS_MCP_KEY);
-      if (storedServers) setMcpServers(JSON.parse(storedServers));
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      if (selectedModel) localStorage.setItem(LS_MODEL_KEY, selectedModel);
-    } catch {}
-  }, [selectedModel]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(LS_MCP_KEY, JSON.stringify(mcpServers));
-    } catch {}
-  }, [mcpServers]);
-
-  const addServer = () => {
-    if (!newServerUrl.trim()) return;
-    try {
-      new URL(newServerUrl.trim()); // validate URL
-    } catch {
-      toast.error("Invalid URL", { description: "Please enter a valid URL." });
-      return;
-    }
-    const server: McpServer = {
-      name: newServerName.trim() || new URL(newServerUrl).host,
-      url: newServerUrl.trim(),
-      active: mcpServers.length === 0, // first becomes active by default
-    };
-    setMcpServers((prev) => [...prev, server]);
-    setNewServerName("");
-    setNewServerUrl("");
-    toast.success("MCP server added", {
-      description: `${server.name} has been added.`,
-    });
-  };
-
-  const removeServer = (index: number) => {
-    setMcpServers((prev) => {
-      const next = [...prev];
-      next.splice(index, 1);
-      // ensure one active remains if any
-      if (next.length > 0 && !next.some((s) => s.active)) next[0].active = true;
-      return next;
-    });
-  };
-
-  const testServer = async (url: string) => {
-    try {
-      const response = await fetch(url, { method: "HEAD" });
-      if (response.ok) {
-        toast.success("Connection successful", {
-          description: "MCP server is reachable.",
-        });
-      } else {
-        toast.error("Connection failed", {
-          description: `Server responded with ${response.status}.`,
-        });
-      }
-    } catch {
-      toast.error("Connection failed", {
-        description: "Unable to reach the MCP server.",
-      });
-    }
-  };
 
   return (
     <div className="fixed top-0 right-0 p-2 gap-1 flex z-50">
@@ -117,7 +28,7 @@ export default function Menu() {
             <SettingsIcon />
           </Button>
         </DialogTrigger>
-        <DialogContent className="w-[80vw] sm:max-w-4xl lg:max-w-5xl h-[60vh] flex flex-col">
+        <DialogContent className="w-[80vw] sm:max-w-4xl lg:max-w-5xl h-[70vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>
           </DialogHeader>
@@ -129,12 +40,6 @@ export default function Menu() {
                   className="w-full justify-start"
                   onClick={() => setSection("model")}>
                   Models
-                </Button>
-                <Button
-                  variant={section === "mcp" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setSection("mcp")}>
-                  MCP Servers
                 </Button>
                 <Button
                   variant={section === "instructions" ? "secondary" : "ghost"}
@@ -152,109 +57,9 @@ export default function Menu() {
             </nav>
 
             <div className="flex-3">
-              {section === "model" && (
-                <section className="space-y-3">
-                  <h3 className="text-base font-semibold">Model</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                    <div className="space-y-2">
-                      <Label htmlFor="model-select">Default model</Label>
-                      <Select
-                        value={selectedModel}
-                        onValueChange={setSelectedModel}>
-                        <SelectTrigger id="model-select" className="w-full">
-                          <SelectValue placeholder="Select a model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {models.map((m) => (
-                            <SelectItem key={m.value} value={m.value}>
-                              <div className="flex items-center gap-2">
-                                <m.icon className="size-4" />
-                                <span>{m.name}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </section>
-              )}
+              {section === "model" && <ChooseModels />}
 
-              {section === "mcp" && (
-                <section className="space-y-3">
-                  <h3 className="text-base font-semibold">MCP Servers</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-2 sm:col-span-1">
-                      <Label htmlFor="mcp-name">Name (optional)</Label>
-                      <Input
-                        id="mcp-name"
-                        placeholder="My MCP"
-                        value={newServerName}
-                        onChange={(e) => setNewServerName(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2 sm:col-span-2">
-                      <Label htmlFor="mcp-url">Gateway SSE URL</Label>
-                      <Input
-                        id="mcp-url"
-                        placeholder="https://localhost:8811/sse"
-                        value={newServerUrl}
-                        onChange={(e) => setNewServerUrl(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={addServer} disabled={!newServerUrl.trim()}>
-                      <PlusIcon className="mr-1" /> Add server
-                    </Button>
-                  </div>
-
-                  <div className="mt-4 space-y-2">
-                    {mcpServers.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        No MCP servers added yet.
-                      </p>
-                    ) : (
-                      <div className="space-y-2">
-                        {mcpServers.map((s, i) => (
-                          <div
-                            key={`${s.url}-${i}`}
-                            className="flex items-center justify-between gap-3 rounded-md border p-3">
-                            <div className="min-w-0">
-                              <p className="font-medium truncate">
-                                {s.name || new URL(s.url).host}
-                              </p>
-                              <p className="text-sm text-muted-foreground truncate">
-                                {s.url}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => testServer(s.url)}>
-                                Test
-                              </Button>
-                              <Button
-                                variant={s.active ? "default" : "outline"}
-                                onClick={() => setActiveServer(i)}>
-                                {s.active ? "Active" : "Set active"}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => removeServer(i)}>
-                                <TrashIcon className="mr-1" /> Remove
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </section>
-              )}
-
-              {section === "tools" && (
+              {/* {section === "tools" && (
                 <section className="space-y-3">
                   <h3 className="text-base font-semibold">Available tools</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
@@ -267,7 +72,7 @@ export default function Menu() {
                     </ul>
                   </div>
                 </section>
-              )}
+              )} */}
 
               {section === "instructions" && (
                 <section className="space-y-3">
