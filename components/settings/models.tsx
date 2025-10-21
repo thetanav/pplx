@@ -11,7 +11,7 @@ import {
 } from "../ui/select";
 import { models } from "@/lib/models";
 import { Input } from "../ui/input";
-import { useDebouncedValue } from "@/lib/utils";
+// immediate persistence: no debounce
 
 const LS_MODEL_KEY = "settings:model";
 
@@ -57,20 +57,27 @@ export default function ChooseModels() {
     } catch {}
   }, [selectedModel]);
 
-  const debOllamaEnabled = useDebouncedValue(ollamaEnabled, 500);
-  const debOllamaModelName = useDebouncedValue(ollamaModelName, 500);
-  const debOllamaModelId = useDebouncedValue(ollamaModelId, 500);
-
+  // persist ollama settings immediately when state changes
   useEffect(() => {
     try {
       localStorage.setItem(
         "settings:ollama:enabled",
-        debOllamaEnabled ? "1" : "0"
+        ollamaEnabled ? "1" : "0"
       );
-      localStorage.setItem("settings:ollama:name", debOllamaModelName);
-      localStorage.setItem("settings:ollama:id", debOllamaModelId);
     } catch {}
-  }, [ollamaEnabled, ollamaModelName, ollamaModelId]);
+  }, [ollamaEnabled]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("settings:ollama:name", ollamaModelName);
+    } catch {}
+  }, [ollamaModelName]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("settings:ollama:id", ollamaModelId);
+    } catch {}
+  }, [ollamaModelId]);
 
   async function checkOllama() {
     setOllamaStatus("checking");
@@ -88,20 +95,30 @@ export default function ChooseModels() {
     }
   }
 
-  // debounced values and persistence for API keys
-  const debOpenRouterKey = useDebouncedValue(openRouterKey, 500);
-  const debGeminiKey = useDebouncedValue(geminiKey, 500);
-  const debAnthropicKey = useDebouncedValue(anthropicKey, 500);
-  const debSerpKey = useDebouncedValue(serpKey, 500);
+  // persist API keys immediately when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem("settings:openrouter:key", openRouterKey);
+    } catch {}
+  }, [openRouterKey]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("settings:openrouter:key", debOpenRouterKey);
-      localStorage.setItem("settings:gemini:key", debGeminiKey);
-      localStorage.setItem("settings:anthropic:key", debAnthropicKey);
-      localStorage.setItem("settings:serpapi:key", debSerpKey);
+      localStorage.setItem("settings:gemini:key", geminiKey);
     } catch {}
-  }, [debOpenRouterKey, debGeminiKey, debAnthropicKey, debSerpKey]);
+  }, [geminiKey]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("settings:anthropic:key", anthropicKey);
+    } catch {}
+  }, [anthropicKey]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("settings:serpapi:key", serpKey);
+    } catch {}
+  }, [serpKey]);
 
   return (
     <section className="space-y-3">

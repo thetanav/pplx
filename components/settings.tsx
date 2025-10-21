@@ -14,6 +14,7 @@ import {
 
 import { Textarea } from "./ui/textarea";
 import ChooseModels from "./settings/models";
+import CustomInstruction from "./settings/instruction";
 
 export default function Menu() {
   const [open, setOpen] = useState(false);
@@ -74,14 +75,7 @@ export default function Menu() {
                 </section>
               )} */}
 
-              {section === "instructions" && (
-                <section className="space-y-3">
-                  <h3 className="text-base font-semibold">
-                    Custom instructions
-                  </h3>
-                  <Textarea placeholder="Enter your custom instructions" />
-                </section>
-              )}
+              {section === "instructions" && <CustomInstruction />}
 
               {section === "about" && (
                 <section className="space-y-2">

@@ -11,9 +11,9 @@ export function useDebouncedValue<T>(value: T, delay = 500) {
   const [debounced, setDebounced] = useState<T>(value);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
+    const t = setTimeout(() => setDebounced(value), 0);
     return () => clearTimeout(t);
-  }, [value, delay]);
+  }, [value, 0]);
 
   return debounced;
 }
