@@ -65,7 +65,9 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: models.find((mo) => mo.value == model)?.end as LanguageModel,
-    messages: convertToModelMessages(messages as any),
+    messages: convertToModelMessages(
+      messages as unknown as Parameters<typeof convertToModelMessages>[0]
+    ),
     system: systemPrompt,
     tools: models.find((m) => m.value === model)?.tools
       ? mergedTools

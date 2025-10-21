@@ -53,8 +53,9 @@ import {
 } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart, tool, type UIMessage } from "ai";
 import { toast } from "sonner";
+import { ArrowDownRightIcon, SmileIcon, WrenchIcon } from "lucide-react";
+import { Image as AiImage } from "@/components/ai-elements/image";
 import Image from "next/image";
-import { ArrowDownRightIcon, WrenchIcon } from "lucide-react";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
@@ -119,6 +120,16 @@ const ChatBotDemo = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-3 relative size-full h-screen">
+      {!messages || messages.length === 0 ? (
+        <div className="absolute flex flex-col top-0 left-0 right-0 bottom-0 space-y-4 -z-50 items-center justify-center text-center mb-24">
+          <SmileIcon className="w-16 h-16 text-muted-foreground" />
+          <h2 className="text-2xl font-semibold">Welcome to Simp Chat</h2>
+          <p className="text-muted-foreground w-96">
+            Start a conversation by typing a message below. Choose your model
+            and attach files as needed.
+          </p>
+        </div>
+      ) : null}
       <div className="flex flex-col h-full">
         <Conversation className="h-full">
           <ConversationContent>
@@ -198,6 +209,16 @@ const ChatBotDemo = () => {
                                   />
                                 </ToolContent>
                               </Tool>
+                            );
+                          case part.type == "file":
+                            return (
+                              <Image
+                                alt={part.filename ?? "Simp AI image gen"}
+                                src={part.url}
+                                width={100}
+                                height={100}
+                                className="rounded-md"
+                              />
                             );
                           default:
                             return null;

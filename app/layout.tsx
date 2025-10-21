@@ -64,7 +64,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="light"
           disableTransitionOnChange>
-          <Menu />
+          {/* <Menu /> */}
           <Toaster position="top-right" richColors closeButton />
           {children}
         </ThemeProvider>

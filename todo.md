@@ -3,6 +3,7 @@
 - [x] tools
 - [x] ollama models
 - [x] custom instructions
+- [x] generate images
 - [ ] own api keys
 - [ ] working app
 - [ ] some bug fixs
