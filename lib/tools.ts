@@ -106,7 +106,7 @@ export const localTools = {
         const cleanText = text.replace(/\s+/g, " ").trim();
 
         return cleanText;
-      } catch (err) {
+      } catch {
         throw new Error(`Failed to scrape page`);
       }
     },

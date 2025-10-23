@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { ToolUIPart } from "ai";
-import { AtomIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { CodeBlock } from "./code-block";
 import Shimmer from "./shimmer";

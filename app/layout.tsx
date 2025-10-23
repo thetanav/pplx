@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
-import Menu from "@/components/settings";
 import { Toaster } from "sonner";
 
 const sans = Inter({
@@ -10,37 +9,28 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pplx.local"),
+  metadataBase: new URL("https://simpchat.vercel.app"),
   title: {
     default: "Simp Chat",
     template: "%s • Simp Chat",
   },
-  description: "Simp chat with lots of models and mcp client.",
+  description: "Simp chat with lots of models and tools.",
   applicationName: "Simp Chat",
-  keywords: [
-    "AI",
-    "chat",
-    "mcp client",
-    "Next.js",
-    "OpenRouter",
-    "Groq",
-    "Perplexity",
-    "Gemini",
-  ],
+  keywords: ["AI", "chat", "OpenRouter", "Groq", "Perplexity", "Gemini"],
   authors: [{ name: "tanav", url: "https://tanavindev.tech" }],
   creator: "tanav",
   openGraph: {
     type: "website",
     title: "Simp Chat",
-    description: "Simp chat with lots of models and mcp client.",
+    description: "Simp chat with lots of models and tools.",
     url: "/",
     siteName: "Simp Chat",
   },
   twitter: {
     card: "summary_large_image",
     title: "Simp Chat",
-    description: "Simp chat with lots of models and mcp client.",
-    creator: "@tanav",
+    description: "Simp chat with lots of models and tools.",
+    creator: "@tanav_twt",
   },
   icons: {
     icon: "/favicon.ico",
@@ -64,7 +54,6 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="light"
           disableTransitionOnChange>
-          {/* <Menu /> */}
           <Toaster position="top-right" richColors closeButton />
           {children}
         </ThemeProvider>

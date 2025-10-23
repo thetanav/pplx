@@ -35,34 +35,24 @@ import {
 } from "@/components/ai-elements/sources";
 import {
   Reasoning,
-  ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@/components/ai-elements/tool";
+import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
 import {
   ArrowDownRightIcon,
-  BoltIcon,
   BoxIcon,
   BrainIcon,
   GemIcon,
   ImageIcon,
   MonitorDownIcon,
   SmileIcon,
-  WrenchIcon,
   ZapIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { localTools } from "@/lib/tools";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
@@ -229,7 +219,7 @@ const ChatBotDemo = () => {
                           case part.type == "file" &&
                             part.mediaType.startsWith("image/"):
                             return (
-                              <img
+                              <Image
                                 alt={part.filename ?? "Simp AI image gen"}
                                 src={part.url}
                                 key={`${part.filename}`}
