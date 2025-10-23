@@ -8,6 +8,8 @@ import {
 import { models } from "@/lib/models";
 import { localTools } from "@/lib/tools";
 import { systemPrompt } from "@/lib/prompt";
+import { checkBotId } from "botid/server";
+import { NextResponse } from "next/server";
 
 export const maxDuration = 30;
 
@@ -19,6 +21,12 @@ const RequestBodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const verification = await checkBotId();
+
+  if (verification.isBot) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
+
   const body = await req.json().catch(() => null);
   const parsed = RequestBodySchema.safeParse(body);
 
