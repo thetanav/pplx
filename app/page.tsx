@@ -62,12 +62,21 @@ import {
   ZapIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { localTools } from "@/lib/tools";
 
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
   const LS_MODEL_KEY = "settings:model";
   const LS_MCP_KEY = "settings:mcpServers";
+
+  // Tool display names mapping
+  const toolDisplayNames: Record<string, string> = {
+    time: "Knowing Current time",
+    calculate: "Performing calculations",
+    search: "Searching the web",
+    weather: "Getting weather",
+  };
   const { messages, sendMessage, status, stop } = useChat({
     onError: (error) => {
       const message =
@@ -200,17 +209,19 @@ const ChatBotDemo = () => {
                             const dyn = part as DynamicToolUIPart;
                             const toolType = part.type.replace("tool-", "");
 
-                            // Show tool during execution and when output is available
+                            // Only show tool when running (output not available)
+                            if (dyn.state === "output-available") {
+                              return null;
+                            }
+
                             return (
-                              dyn.state !== "output-available" && (
-                                <Tool key={`${message.id}-${i}-${toolType}`}>
-                                  <ToolHeader
-                                    name={toolType}
-                                    type={`tool-${toolType}`}
-                                    state={dyn.state}
-                                  />
-                                </Tool>
-                              )
+                              <Tool key={`${message.id}-${i}-${toolType}`}>
+                                <ToolHeader
+                                  name={toolDisplayNames[toolType] || toolType}
+                                  type={`tool-${toolType}`}
+                                  state={dyn.state}
+                                />
+                              </Tool>
                             );
                           case part.type == "file":
                             return (

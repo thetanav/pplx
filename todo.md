@@ -5,7 +5,10 @@
 - [x] custom instructions
 - [x] generate images
 - [ ] own api keys
-- [ ] working app
-- [ ] some bug fixs
+- [x] working app
+- [x] some bug fixs
 - [ ] launch - 30 oct 2025
 - [ ] more tools
+  - scrape a page
+  - code executor
+  - send emails

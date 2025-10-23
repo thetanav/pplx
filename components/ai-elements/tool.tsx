@@ -40,7 +40,7 @@ export const ToolHeader = ({
     {...props}>
     <div className="flex items-center justify-center">
       {state != "output-available" ? (
-        <Shimmer text={`${name}ing...`} />
+        <Shimmer text={`${name}`} />
       ) : (
         <span className="text-muted-foreground text-md font-bold">
           Tool called {name}
