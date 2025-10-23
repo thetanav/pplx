@@ -438,7 +438,7 @@ export const PromptInputBody = ({
   className,
   ...props
 }: PromptInputBodyProps) => (
-  <div className={cn(className, "flex flex-col border")} {...props} />
+  <div className={cn(className, "flex flex-col h-fit")} {...props} />
 );
 
 export type PromptInputTextareaProps = ComponentProps<typeof Textarea>;
@@ -473,9 +473,9 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        "w-full resize-none rounded-none border-none px-4 pt-3 pb-0 shadow-none outline-none ring-0",
-        "field-sizing-content bg-transparent dark:bg-transparent",
-        "max-h-72 min-h-2",
+        "w-full resize-none rounded-none border-none px-4 pt-3 pb-0 shadow-none outline-none ring-0 text-lg",
+        "field-sizing-content h-6 bg-transparent dark:bg-transparent",
+        "max-h-72 overflow-y-auto",
         "focus-visible:ring-0",
         className
       )}
@@ -497,7 +497,10 @@ export const PromptInputToolbar = ({
   ...props
 }: PromptInputToolbarProps) => (
   <div
-    className={cn("flex items-center justify-between py-1 px-1", className)}
+    className={cn(
+      "flex items-center justify-between py-1 px-1 pt-0",
+      className
+    )}
     {...props}
   />
 );
@@ -557,13 +560,18 @@ export const PromptInputActionMenuTrigger = ({
   className,
   children,
   ...props
-}: PromptInputActionMenuTriggerProps) => (
-  <DropdownMenuTrigger asChild>
-    <PromptInputButton className={className} {...props}>
+}: PromptInputActionMenuTriggerProps) => {
+  const attachments = usePromptInputAttachments();
+
+  return (
+    <PromptInputButton
+      className={className}
+      onClick={() => attachments.openFileDialog()}
+      {...props}>
       {children ?? <PlusIcon className="size-4" />}
     </PromptInputButton>
-  </DropdownMenuTrigger>
-);
+  );
+};
 
 export type PromptInputActionMenuContentProps = ComponentProps<
   typeof DropdownMenuContent
