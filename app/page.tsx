@@ -52,7 +52,17 @@ import {
 } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
-import { ArrowDownRightIcon, SmileIcon, WrenchIcon } from "lucide-react";
+import {
+  ArrowDownRightIcon,
+  BoltIcon,
+  BrainIcon,
+  GemIcon,
+  ImageIcon,
+  MonitorDownIcon,
+  SmileIcon,
+  WrenchIcon,
+  ZapIcon,
+} from "lucide-react";
 import Image from "next/image";
 
 const ChatBotDemo = () => {
@@ -241,7 +251,7 @@ const ChatBotDemo = () => {
           <ConversationScrollButton />
         </Conversation>
 
-        <PromptInput onSubmit={handleSubmit} className="" globalDrop multiple>
+        <PromptInput onSubmit={handleSubmit} globalDrop multiple>
           <PromptInputBody>
             <PromptInputAttachments>
               {(attachment) => <PromptInputAttachment data={attachment} />}
@@ -278,9 +288,31 @@ const ChatBotDemo = () => {
                         width={20}
                         height={20}
                       />
-                      {model.name}
-                      {model.tools && (
-                        <WrenchIcon className="w-6 h-6 opacity-55" />
+                      <p className="font-bold">{model.name}</p>
+                      {model.reasoning && (
+                        <span className="bg-green-100 text-green-800 p-1 rounded-md flex items-center">
+                          <BrainIcon className="w-4 h-4 text-current" />
+                        </span>
+                      )}
+                      {model.fast && (
+                        <span className="bg-indigo-100 text-indigo-800 p-1 rounded-md flex items-center">
+                          <ZapIcon className="w-4 h-4 text-current" />
+                        </span>
+                      )}
+                      {model.image && (
+                        <span className="bg-blue-100 text-blue-800 p-1 rounded-md flex items-center">
+                          <ImageIcon className="w-4 h-4 text-current" />
+                        </span>
+                      )}
+                      {model.pro && (
+                        <span className="bg-orange-100 text-orange-800 p-1 rounded-md flex items-center">
+                          <GemIcon className="w-4 h-4 text-current" />
+                        </span>
+                      )}
+                      {model.local && (
+                        <span className="bg-yellow-100 text-yellow-800 p-1 rounded-md flex items-center">
+                          <MonitorDownIcon className="w-4 h-4 text-current" />
+                        </span>
                       )}
                     </PromptInputModelSelectItem>
                   ))}

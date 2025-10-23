@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
   ArrowUp,
+  ArrowUpIcon,
   Loader2Icon,
   PaperclipIcon,
   PinIcon,
@@ -437,7 +438,7 @@ export const PromptInputBody = ({
   className,
   ...props
 }: PromptInputBodyProps) => (
-  <div className={cn(className, "flex flex-col")} {...props} />
+  <div className={cn(className, "flex flex-col border")} {...props} />
 );
 
 export type PromptInputTextareaProps = ComponentProps<typeof Textarea>;
@@ -472,9 +473,9 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        "w-full resize-none rounded-none border-none p-4 pt-3 pb-0 shadow-none outline-none ring-0",
+        "w-full resize-none rounded-none border-none px-4 pt-3 pb-0 shadow-none outline-none ring-0",
         "field-sizing-content bg-transparent dark:bg-transparent",
-        "max-h-48 min-h-2",
+        "max-h-72 min-h-2",
         "focus-visible:ring-0",
         className
       )}
@@ -510,7 +511,7 @@ export const PromptInputTools = ({
   <div
     className={cn(
       "flex items-center gap-1",
-      "[&_button]:rounded-full",
+      "[&_button]:rounded-md",
       className
     )}
     {...props}
@@ -531,7 +532,7 @@ export const PromptInputButton = ({
   return (
     <Button
       className={cn(
-        "shrink-0 gap-1.5 rounded-full cursor-pointer p-2",
+        "shrink-0 gap-1.5 rounded-md cursor-pointer p-2",
         variant === "ghost" && "text-muted-foreground",
         newSize === "default",
         className
@@ -571,7 +572,7 @@ export const PromptInputActionMenuContent = ({
   className,
   ...props
 }: PromptInputActionMenuContentProps) => (
-  <DropdownMenuContent align="start" className={cn(className)} {...props} />
+  <DropdownMenuContent align="center" className={cn(className)} {...props} />
 );
 
 export type PromptInputActionMenuItemProps = ComponentProps<
@@ -593,27 +594,27 @@ export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
 };
 
 export const PromptInputSubmit = ({
-  className = "px-2 py-1",
+  className = "p-3",
   variant = "default",
   status,
   stop,
   children,
   ...props
 }: PromptInputSubmitProps) => {
-  let Icon = <ArrowUp className="size-5" />;
+  let Icon = <ArrowUpIcon className="w-6 h-6" />;
 
   if (status === "submitted") {
-    Icon = <Loader2Icon className="size-5 animate-spin" />;
+    Icon = <Loader2Icon className="w-6 h-6 animate-spin" />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-5" />;
+    Icon = <SquareIcon className="w-6 h-6" />;
   } else if (status === "error") {
-    Icon = <XIcon className="size-5" />;
+    Icon = <XIcon className="w-6 h-6" />;
   }
 
   return (
     <Button
-      className={cn("gap-1.5 rounded-lg", className)}
-      size="sm"
+      className={cn("gap-1.5 rounded-md", className)}
+      size="icon"
       type="submit"
       variant={variant}
       onClick={() => {
@@ -642,7 +643,7 @@ export const PromptInputModelSelectTrigger = ({
   <SelectTrigger
     className={cn(
       "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
-      'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground text-xs',
+      'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
       className
     )}
     {...props}
