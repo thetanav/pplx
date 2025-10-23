@@ -76,6 +76,7 @@ const ChatBotDemo = () => {
     calculate: "Performing calculations",
     search: "Searching the web",
     weather: "Getting weather",
+    scrape: "Viewing the page",
   };
   const { messages, sendMessage, status, stop } = useChat({
     onError: (error) => {
@@ -192,16 +193,18 @@ const ChatBotDemo = () => {
                               </Response>
                             );
                           case part.type == "reasoning":
+                            const isStreamingReasoning =
+                              status === "streaming" &&
+                              message.id === messages.at(-1)?.id;
+                            if (!isStreamingReasoning) {
+                              return null;
+                            }
                             return (
                               <Reasoning
                                 key={`${message.id}-${i}`}
                                 className="w-full"
-                                isStreaming={
-                                  status === "streaming" &&
-                                  message.id === messages.at(-1)?.id
-                                }>
+                                isStreaming={isStreamingReasoning}>
                                 <ReasoningTrigger />
-                                <ReasoningContent>{part.text}</ReasoningContent>
                               </Reasoning>
                             );
                           case part.type.startsWith("tool-") ||
@@ -262,7 +265,11 @@ const ChatBotDemo = () => {
           <ConversationScrollButton />
         </Conversation>
 
-        <PromptInput onSubmit={handleSubmit} globalDrop multiple>
+        <PromptInput
+          onSubmit={handleSubmit}
+          globalDrop
+          multiple
+          accept="image/*">
           <PromptInputBody>
             <PromptInputAttachments>
               {(attachment) => <PromptInputAttachment data={attachment} />}

@@ -9,6 +9,6 @@
 - [x] some bug fixs
 - [ ] launch - 30 oct 2025
 - [ ] more tools
-  - scrape a page
+  - [x] scrape a page
   - code executor
   - send emails

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { tool } from "ai";
+import { load } from "cheerio";
 
 export const localTools = {
   time: tool({
@@ -82,6 +83,32 @@ export const localTools = {
           snippet: r.snippet,
         })
       );
+    },
+  }),
+  scrape: tool({
+    description: "Scrape all visible text content from a web page",
+    inputSchema: z.object({
+      url: z.string().describe("The URL of the web page to scrape"),
+    }),
+    execute: async ({ url }) => {
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+        const $ = load(html);
+
+        // Remove unwanted elements like scripts, styles
+        $("script, style, noscript").remove();
+
+        // Extract all visible text
+        const text = $("body").text();
+
+        // Clean and trim the text
+        const cleanText = text.replace(/\s+/g, " ").trim();
+
+        return cleanText;
+      } catch (err) {
+        throw new Error(`Failed to scrape page`);
+      }
     },
   }),
 };

@@ -117,7 +117,7 @@ export type ReasoningTriggerProps = ComponentProps<typeof CollapsibleTrigger>;
 
 const getThinkingMessage = (isStreaming: boolean, duration?: number) => {
   if (isStreaming || duration === 0) {
-    return <Shimmer text="Thinking..." />;
+    return <Shimmer text="Thinking" />;
   }
   if (duration === undefined) {
     return <p>Thought for a few seconds</p>;
@@ -132,17 +132,11 @@ export const ReasoningTrigger = memo(
     return (
       <CollapsibleTrigger
         className={cn(
-          "flex w-full items-center gap-2 text-muted-foreground text-xs transition-colors hover:text-foreground",
+          "flex w-full items-center gap-2 text-muted-foreground text-md font-bold transition-colors hover:text-foreground",
           className
         )}
         {...props}>
-        {children ?? (
-          <>
-            <BrainIcon className="size-3 text-mutes-foreground" />
-            {getThinkingMessage(isStreaming, duration)}
-            <ChevronDownIcon className="size-3" />
-          </>
-        )}
+        {children ?? <>{getThinkingMessage(isStreaming, duration)}</>}
       </CollapsibleTrigger>
     );
   }
