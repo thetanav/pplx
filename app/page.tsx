@@ -223,11 +223,13 @@ const ChatBotDemo = () => {
                                 />
                               </Tool>
                             );
-                          case part.type == "file":
+                          case part.type == "file" &&
+                            part.mediaType.startsWith("image/"):
                             return (
-                              <Image
+                              <img
                                 alt={part.filename ?? "Simp AI image gen"}
                                 src={part.url}
+                                key={`${part.filename}`}
                                 width={100}
                                 height={100}
                                 className="rounded-md"
