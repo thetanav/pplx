@@ -54,7 +54,7 @@ export async function POST(req: Request) {
   return result.toUIMessageStreamResponse({
     messageMetadata: ({ part }) => {
       if (part.type === "finish") {
-        return { stats: part.totalUsage };
+        return { stats: part.totalUsage, model: model };
       }
     },
   });

@@ -12,7 +12,7 @@ export const localTools = {
       };
     },
   }),
-  calculate: tool({
+  Calculat: tool({
     description: "Perform mathematical calculations",
     inputSchema: z.object({
       expression: z.string().describe("Mathematical expression to evaluate"),
@@ -36,7 +36,7 @@ export const localTools = {
       }
     },
   }),
-  search: tool({
+  Search: tool({
     description: "Search the web.",
     inputSchema: z.object({
       query: z.string().describe("The search query to look up"),

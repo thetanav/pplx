@@ -52,6 +52,7 @@ import { toast } from "sonner";
 import {
   ArrowDownRightIcon,
   BoltIcon,
+  BoxIcon,
   BrainIcon,
   GemIcon,
   ImageIcon,
@@ -141,7 +142,10 @@ const ChatBotDemo = () => {
             {messages.map((message) => {
               const metadata = message.metadata as
                 | undefined
-                | { stats?: { inputTokens?: number; outputTokens?: number } };
+                | {
+                    stats?: { inputTokens?: number; outputTokens?: number };
+                    model: string;
+                  };
               return (
                 <div key={message.id}>
                   {message.role === "assistant" &&
@@ -169,7 +173,7 @@ const ChatBotDemo = () => {
                       </Sources>
                     )}
                   <Message from={message.role}>
-                    <MessageContent>
+                    <MessageContent className="group">
                       {message.parts.map((part, i) => {
                         switch (true) {
                           case part.type == "text":
@@ -198,22 +202,15 @@ const ChatBotDemo = () => {
 
                             // Show tool during execution and when output is available
                             return (
-                              <Tool
-                                defaultOpen={dyn.state === "output-available"}
-                                key={`${message.id}-${i}-${toolType}`}>
-                                <ToolHeader
-                                  name={toolType}
-                                  type={`tool-${toolType}`}
-                                  state={dyn.state}
-                                />
-                                <ToolContent>
-                                  <ToolInput input={dyn.input} />
-                                  <ToolOutput
-                                    errorText=""
-                                    output={dyn.output}
+                              dyn.state !== "output-available" && (
+                                <Tool key={`${message.id}-${i}-${toolType}`}>
+                                  <ToolHeader
+                                    name={toolType}
+                                    type={`tool-${toolType}`}
+                                    state={dyn.state}
                                   />
-                                </ToolContent>
-                              </Tool>
+                                </Tool>
+                              )
                             );
                           case part.type == "file":
                             return (
@@ -230,11 +227,15 @@ const ChatBotDemo = () => {
                         }
                       })}
                       {metadata?.stats && (
-                        <div className="gap-2 flex opacity-70 items-center">
-                          <ArrowDownRightIcon className="w-4 h-4 -rotate-90" />
-                          {metadata.stats?.outputTokens ?? 0} tokens
-                          <ArrowDownRightIcon className="w-4 h-4 rotate-90" />
-                          {metadata.stats?.inputTokens ?? 0} tokens
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="gap-2 flex opacity-70 items-center">
+                            <ArrowDownRightIcon className="w-4 h-4 -rotate-90" />
+                            {metadata.stats?.outputTokens ?? 0} tokens
+                            <ArrowDownRightIcon className="w-4 h-4 rotate-90" />
+                            {metadata.stats?.inputTokens ?? 0} tokens
+                            <BoxIcon className="w-4 h-4" />
+                            {metadata.model}
+                          </div>
                         </div>
                       )}
                     </MessageContent>

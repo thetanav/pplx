@@ -39,15 +39,13 @@ export const ToolHeader = ({
     )}
     {...props}>
     <div className="flex items-center justify-center">
-      <AtomIcon className="size-3 text-muted-foreground mr-2" />
       {state != "output-available" ? (
-        <Shimmer text={`Tool call ${name}...`} />
+        <Shimmer text={`${name}ing...`} />
       ) : (
-        <span className="text-muted-foreground text-xs">
+        <span className="text-muted-foreground text-md font-bold">
           Tool called {name}
         </span>
       )}
-      <ChevronDownIcon className="size-3 ml-2" />
     </div>
   </CollapsibleTrigger>
 );
