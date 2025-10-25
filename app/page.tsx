@@ -40,14 +40,16 @@ import {
 import { Loader } from "@/components/ai-elements/loader";
 import { models } from "@/lib/models";
 import { Tool, ToolHeader } from "@/components/ai-elements/tool";
-import { DynamicToolUIPart } from "ai";
+import { DynamicToolUIPart, tool } from "ai";
 import { toast } from "sonner";
 import {
   ArrowDownRightIcon,
   BoxIcon,
   BrainIcon,
+  Divide,
   GemIcon,
   ImageIcon,
+  LoaderCircleIcon,
   MonitorDownIcon,
   SmileIcon,
   ZapIcon,
@@ -172,73 +174,101 @@ const ChatBotDemo = () => {
                       </Sources>
                     )}
                   <Message from={message.role}>
-                    <MessageContent className="group">
-                      {message.parts.map((part, i) => {
-                        switch (true) {
-                          case part.type == "text":
-                            return (
-                              <Response key={`${message.id}-${i}`}>
-                                {part.text}
-                              </Response>
-                            );
-                          case part.type == "reasoning":
-                            const isStreamingReasoning =
-                              status === "streaming" &&
-                              message.id === messages.at(-1)?.id;
-                            if (!isStreamingReasoning) {
-                              return null;
-                            }
-                            return (
-                              <Reasoning
-                                key={`${message.id}-${i}`}
-                                className="w-full"
-                                isStreaming={isStreamingReasoning}>
-                                <ReasoningTrigger />
-                              </Reasoning>
-                            );
-                          case part.type.startsWith("tool-") ||
-                            part.type == "dynamic-tool":
-                            const dyn = part as DynamicToolUIPart;
-                            const toolType = part.type.replace("tool-", "");
+                    <MessageContent>
+                      <div className="overflow-x-auto gap-4">
+                        {message.parts.map((part, i) => {
+                          switch (true) {
+                            case part.type == "text":
+                              return (
+                                <Response key={`${message.id}-${i}`}>
+                                  {part.text}
+                                </Response>
+                              );
+                            case part.type == "reasoning":
+                              const isStreamingReasoning =
+                                status === "streaming";
+                              if (!isStreamingReasoning) return null;
+                              return (
+                                <Reasoning
+                                  key={`${message.id}-${i}`}
+                                  className="w-full"
+                                  isStreaming={isStreamingReasoning}>
+                                  <ReasoningTrigger />
+                                </Reasoning>
+                              );
+                            case part.type.startsWith("tool-") ||
+                              part.type == "dynamic-tool":
+                              const dyn = part as DynamicToolUIPart;
+                              const toolType = part.type.replace("tool-", "");
 
-                            // Only show tool when running (output not available)
-                            if (dyn.state === "output-available") {
-                              return null;
-                            }
+                              // Only show tool when running (output not available)
+                              if (
+                                dyn.state === "output-available" &&
+                                toolType !== "search"
+                              ) {
+                                return null;
+                              }
 
-                            return (
-                              <Tool key={`${message.id}-${i}-${toolType}`}>
-                                <ToolHeader
-                                  name={toolDisplayNames[toolType] || toolType}
-                                  type={`tool-${toolType}`}
-                                  state={dyn.state}
+                              return (
+                                <Tool key={`${message.id}-${i}-${toolType}`}>
+                                  <div className="flex gap-3">
+                                    <ToolHeader
+                                      name={
+                                        toolDisplayNames[toolType] || toolType
+                                      }
+                                      type={`tool-${toolType}`}
+                                      state={dyn.state}
+                                    />
+                                    {dyn.state === "output-available" &&
+                                      Array.isArray(dyn.output) && (
+                                        <div className="flex ml-2">
+                                          {dyn.output.map((item) => (
+                                            <img
+                                              src={`https://www.google.com/s2/favicons?domain=${
+                                                new URL(item.link).hostname
+                                              }`}
+                                              className="rounded-full border w-6 h-6 -ml-2 bg-white"
+                                            />
+                                          ))}
+                                        </div>
+                                      )}
+                                  </div>
+                                </Tool>
+                              );
+                            case part.type == "file" &&
+                              part.mediaType.startsWith("image/"):
+                              return (
+                                <img
+                                  alt={part.filename ?? "Simp AI image gen"}
+                                  src={part.url}
+                                  key={`${part.filename}`}
+                                  width={100}
+                                  height={100}
+                                  className="rounded-md"
                                 />
-                              </Tool>
-                            );
-                          case part.type == "file" &&
-                            part.mediaType.startsWith("image/"):
-                            return (
-                              <Image
-                                alt={part.filename ?? "Simp AI image gen"}
-                                src={part.url}
-                                key={`${part.filename}`}
-                                width={100}
-                                height={100}
-                                className="rounded-md"
-                              />
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
+                              );
+                            default:
+                              return null;
+                          }
+                        })}
+                      </div>
                       {metadata?.stats && (
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="gap-2 flex opacity-70 items-center">
+                        <div>
+                          <div className="gap-2 flex opacity-60 items-center">
                             <ArrowDownRightIcon className="w-4 h-4 -rotate-90" />
                             {metadata.stats?.outputTokens ?? 0} tokens
                             <ArrowDownRightIcon className="w-4 h-4 rotate-90" />
                             {metadata.stats?.inputTokens ?? 0} tokens
-                            <BoxIcon className="w-4 h-4" />
+                            {(() => {
+                              switch (status) {
+                                case "streaming":
+                                  return (
+                                    <LoaderCircleIcon className="w-4 h-4 animate-spin" />
+                                  );
+                                default:
+                                  return <BoxIcon className="w-4 h-4" />;
+                              }
+                            })()}
                             {metadata.model}
                           </div>
                         </div>

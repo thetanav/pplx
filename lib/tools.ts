@@ -53,6 +53,7 @@ export const localTools = {
         )}&api_key=${process.env.SERP_API_KEY}&num=${maxResults}`
       );
       const data = await response.json();
+      console.log("Search tool fetched data:", data);
       return data.organic_results.map(
         (r: { title: string; link: string; snippet: string }) => ({
           title: r.title,

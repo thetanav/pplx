@@ -41,9 +41,7 @@ export const ToolHeader = ({
       {state != "output-available" ? (
         <Shimmer text={`${name}`} />
       ) : (
-        <span className="text-muted-foreground text-md font-bold">
-          Tool called {name}
-        </span>
+        <span className="text-muted-foreground text-md font-bold">{name}</span>
       )}
     </div>
   </CollapsibleTrigger>

@@ -40,8 +40,7 @@ export const CodeBlock = ({
         "relative w-full overflow-hidden rounded-md border bg-background text-foreground",
         className
       )}
-      {...props}
-    >
+      {...props}>
       <div className="relative">
         <SyntaxHighlighter
           className="overflow-hidden dark:hidden"
@@ -62,8 +61,7 @@ export const CodeBlock = ({
             minWidth: "2.5rem",
           }}
           showLineNumbers={showLineNumbers}
-          style={oneLight}
-        >
+          style={oneLight}>
           {code}
         </SyntaxHighlighter>
         <SyntaxHighlighter
@@ -85,8 +83,7 @@ export const CodeBlock = ({
             minWidth: "2.5rem",
           }}
           showLineNumbers={showLineNumbers}
-          style={oneDark}
-        >
+          style={oneDark}>
           {code}
         </SyntaxHighlighter>
         {children && (
@@ -140,8 +137,7 @@ export const CodeBlockCopyButton = ({
       onClick={copyToClipboard}
       size="icon"
       variant="ghost"
-      {...props}
-    >
+      {...props}>
       {children ?? <Icon size={14} />}
     </Button>
   );
