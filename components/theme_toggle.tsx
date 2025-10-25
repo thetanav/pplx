@@ -11,7 +11,7 @@ export function ModeToggle() {
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
       aria-pressed={theme === "dark"}
       title={
