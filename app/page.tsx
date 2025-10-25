@@ -65,7 +65,6 @@ const ChatBotDemo = () => {
     time: "Knowing Current time",
     calculate: "Performing calculations",
     search: "Searching the web",
-    weather: "Getting weather",
     scrape: "Viewing the page",
   };
   const { messages, sendMessage, status, stop } = useChat({

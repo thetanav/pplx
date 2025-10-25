@@ -13,29 +13,6 @@ export const localTools = {
       };
     },
   }),
-  weather: tool({
-    description: "Get the current weather for a given location",
-    inputSchema: z.object({
-      location: z.string().describe("The location to get the weather for"),
-    }),
-    execute: async ({ location }) => {
-      const apiKey = process.env.WEATHER_API_KEY;
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
-          location
-        )}&appid=${apiKey}&units=metric`
-      );
-      if (!response.ok) {
-        return { error: `Could not fetch weather for ${location}` };
-      }
-      const data = await response.json();
-      return {
-        location: data.name,
-        temperature: data.main.temp,
-        description: data.weather[0].description,
-      };
-    },
-  }),
   calculate: tool({
     description: "Perform mathematical calculations",
     inputSchema: z.object({
@@ -69,7 +46,7 @@ export const localTools = {
         .default(5)
         .describe("Maximum number of results to return"),
     }),
-    execute: async ({ query, maxResults = 3 }) => {
+    execute: async ({ query, maxResults }) => {
       const response = await fetch(
         `https://serpapi.com/search.json?engine=google_light&q=${encodeURIComponent(
           query
