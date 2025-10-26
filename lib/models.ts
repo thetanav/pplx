@@ -11,15 +11,6 @@ const openrouter = createOpenRouter({
 // add local, pro parameter
 export const models = [
   {
-    name: "Qwen 3 8b",
-    value: "qwen3:8b",
-    logo: "/qwen.svg",
-    tools: true,
-    reasoning: true,
-    local: true,
-    end: ollama("qwen3:8b"),
-  },
-  {
     name: "Qwen3 32b",
     value: "qwen/qwen3-32b",
     logo: "/qwen.svg",
@@ -112,5 +103,14 @@ export const models = [
     tools: true,
     pro: true,
     end: openrouter.chat("anthropic/claude-sonnet-4.5"),
+  },
+  {
+    name: "Qwen 3 8b",
+    value: "qwen3:8b",
+    logo: "/qwen.svg",
+    tools: true,
+    reasoning: true,
+    local: true,
+    end: ollama("qwen3:8b"),
   },
 ];

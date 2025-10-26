@@ -9,10 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { ModeToggle } from "@/components/theme_toggle";
 import { LoaderCircle } from "lucide-react";
 
@@ -58,18 +56,13 @@ export default function Settings() {
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
-            <CardDescription>
-              Update your personal information and profile picture.
-            </CardDescription>
+            <CardDescription>Your account information.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="flex items-center space-x-4">
               <Avatar className="w-16 h-16">
                 <AvatarImage
-                  src={
-                    session.user?.image ||
-                    `https://avatar.vercel.sh/${session.user?.name}`
-                  }
+                  src={session.user?.image!}
                   alt={session.user?.name || "User"}
                 />
                 <AvatarFallback>
@@ -83,34 +76,27 @@ export default function Settings() {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <Separator />
-
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  defaultValue={session.user?.name}
-                  placeholder="Enter your name"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  defaultValue={session.user?.email}
-                  placeholder="Enter your email"
-                  disabled
-                />
-                <p className="text-xs text-muted-foreground">
-                  Email cannot be changed. Contact support if needed.
+        {/* Pro Subscription Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pro Subscription</CardTitle>
+            <CardDescription>
+              Upgrade to Pro for enhanced features.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Pro Plan</Label>
+                <p className="text-sm text-muted-foreground">
+                  $1 for a month (coming soon)
                 </p>
               </div>
+              <Button disabled>Coming Soon</Button>
             </div>
-
-            <Button>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -139,32 +125,12 @@ export default function Settings() {
         <Card>
           <CardHeader>
             <CardTitle>Account</CardTitle>
-            <CardDescription>
-              Manage your account security and preferences.
-            </CardDescription>
+            <CardDescription>Manage your account.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Account Status</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {session.user?.emailVerified ? "Verified" : "Unverified"}
-                  </p>
-                </div>
-                {session.user?.emailVerified ? (
-                  <div className="w-2 h-2 bg-green-500 rounded-full" />
-                ) : (
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-                )}
-              </div>
-
-              <Separator />
-
-              <Button variant="destructive" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </div>
+            <Button variant="destructive" onClick={handleSignOut}>
+              Sign Out
+            </Button>
           </CardContent>
         </Card>
       </div>
