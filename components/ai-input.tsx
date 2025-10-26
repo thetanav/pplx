@@ -25,6 +25,17 @@ import {
   ZapIcon,
 } from "lucide-react";
 import { ChatStatus } from "ai";
+import { type Dispatch, type SetStateAction } from "react";
+
+type AIInputProps = {
+  handleSubmit: (message: PromptInputMessage) => void;
+  setInput: Dispatch<SetStateAction<string>>;
+  input: string;
+  setModel: Dispatch<SetStateAction<string>>;
+  model: string;
+  status: ChatStatus;
+  stop: () => Promise<void>;
+};
 
 export default function AIInput({
   handleSubmit,
@@ -34,17 +45,15 @@ export default function AIInput({
   model,
   status,
   stop,
-}: {
-  handleSubmit: any;
-  setInput: any;
-  input: string;
-  setModel: any;
-  model: string;
-  status: ChatStatus;
-  stop: any;
-}) {
+}: AIInputProps) {
   return (
-    <PromptInput onSubmit={handleSubmit} globalDrop multiple accept="image/*">
+    <PromptInput
+      onSubmit={(message) => {
+        handleSubmit(message);
+      }}
+      globalDrop
+      multiple
+      accept="image/*">
       <PromptInputBody>
         <PromptInputAttachments>
           {(attachment) => <PromptInputAttachment data={attachment} />}

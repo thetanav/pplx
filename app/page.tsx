@@ -204,14 +204,26 @@ const ChatBotDemo = () => {
                                     {dyn.state === "output-available" &&
                                       Array.isArray(dyn.output) && (
                                         <div className="flex ml-2">
-                                          {dyn.output.map((item) => (
-                                            <img
-                                              src={`https://www.google.com/s2/favicons?domain=${
-                                                new URL(item.link).hostname
-                                              }`}
-                                              className="rounded-full border w-6 h-6 -ml-2 bg-white"
-                                            />
-                                          ))}
+                                          {dyn.output.map(
+                                            (item, outputIndex) => {
+                                              let hostname: string;
+                                              try {
+                                                hostname = new URL(item.link)
+                                                  .hostname;
+                                              } catch {
+                                                hostname = "external";
+                                              }
+
+                                              return (
+                                                <img
+                                                  key={`${message.id}-${i}-${toolType}-${outputIndex}`}
+                                                  src={`https://www.google.com/s2/favicons?domain=${hostname}`}
+                                                  alt={`Favicon for ${hostname}`}
+                                                  className="rounded-full border w-6 h-6 -ml-2 bg-white"
+                                                />
+                                              );
+                                            }
+                                          )}
                                         </div>
                                       )}
                                   </div>
