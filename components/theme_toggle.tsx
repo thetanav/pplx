@@ -13,7 +13,7 @@ export function ModeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      aria-pressed={theme === "dark"}
+      // aria-pressed={theme === "dark"}
       title={
         theme === "light" ? "Switch to dark theme" : "Switch to light theme"
       }

@@ -50,14 +50,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${sans.className} antialiased min-h-screen bg-background`}>
+        className={`${sans.className} antialiased min-h-screen bg-gradient-to-b from-violet-700/20 to-background`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange>
           <Toaster position="top-right" closeButton />
-          <Navbar />
           {children}
         </ThemeProvider>
       </body>
