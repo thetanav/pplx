@@ -62,7 +62,7 @@ export default function Settings() {
             <div className="flex items-center space-x-4">
               <Avatar className="w-16 h-16">
                 <AvatarImage
-                  src={session.user?.image!}
+                  src={session.user?.image || undefined}
                   alt={session.user?.name || "User"}
                 />
                 <AvatarFallback>
