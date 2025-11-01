@@ -134,6 +134,9 @@ const ChatBotDemo = () => {
             Start a conversation by typing a message below. Choose your model
             and attach files as needed.
           </p>
+          <p className="text-muted-foreground text-sm w-96">
+            Note: Chats are temporary and not stored. Refreshing the page will clear the conversation.
+          </p>
         </div>
       ) : null}
       <div className="flex flex-col h-full">

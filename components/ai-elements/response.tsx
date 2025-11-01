@@ -2,19 +2,34 @@
 
 import { cn } from "@/lib/utils";
 import { type ComponentProps, memo, forwardRef } from "react";
-import { Streamdown } from "streamdown";
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
-type ResponseProps = ComponentProps<typeof Streamdown>;
+type ResponseProps = {
+  children?: React.ReactNode;
+  className?: string;
+};
 
 export const Response = memo(
-  forwardRef<HTMLDivElement, ResponseProps>(({ className, ...props }, ref) => (
+  forwardRef<HTMLDivElement, ResponseProps>(({ className, children }, ref) => (
     <div
       ref={ref}
       className={cn(
         "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         className
       )}>
-      <Streamdown {...props} />
+      {typeof children === 'string' ? (
+        <ReactMarkdown
+          remarkPlugins={[remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+        >
+          {children}
+        </ReactMarkdown>
+      ) : (
+        children
+      )}
     </div>
   )),
   (prevProps, nextProps) => prevProps.children === nextProps.children

@@ -471,7 +471,7 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        "w-full resize-none rounded-none border-none px-6 pt-4 pb-0 shadow-none outline-none ring-0 text-xl",
+        "w-full resize-none rounded-none border-none px-6 pt-4 pb-0 shadow-none outline-none ring-0 text-2xl",
         "field-sizing-content h-6 bg-transparent dark:bg-transparent",
         "max-h-72 overflow-y-auto",
         "focus-visible:ring-0",
@@ -648,7 +648,7 @@ export const PromptInputModelSelectTrigger = ({
 }: PromptInputModelSelectTriggerProps) => (
   <SelectTrigger
     className={cn(
-      "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
+      "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors rounded-full",
       'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
       className
     )}
