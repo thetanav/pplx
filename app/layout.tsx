@@ -12,25 +12,25 @@ const sans = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://simpchat.vercel.app"),
   title: {
-    default: "Simp Chat",
-    template: "%s • Simp Chat",
+    default: "AI Chat",
+    template: "%s • AI Chat",
   },
-  description: "Simp chat with lots of models and tools.",
-  applicationName: "Simp Chat",
+  description: "AI chat with lots of models and tools.",
+  applicationName: "AI Chat",
   keywords: ["AI", "chat", "OpenRouter", "Groq", "Perplexity", "Gemini"],
   authors: [{ name: "tanav", url: "https://tanavindev.tech" }],
   creator: "tanav",
   openGraph: {
     type: "website",
-    title: "Simp Chat",
-    description: "Simp chat with lots of models and tools.",
+    title: "AI Chat",
+    description: "AI chat with lots of models and tools.",
     url: "/",
-    siteName: "Simp Chat",
+    siteName: "AI Chat",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Simp Chat",
-    description: "Simp chat with lots of models and tools.",
+    title: "AI Chat",
+    description: "AI chat with lots of models and tools.",
     creator: "@tanav_twt",
   },
   icons: {
@@ -50,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${sans.className} antialiased min-h-screen bg-gradient-to-b from-violet-700/20 to-background`}>
+        className={`${sans.className} antialiased min-h-screen bg-background`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

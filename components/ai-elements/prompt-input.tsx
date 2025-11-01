@@ -149,7 +149,7 @@ export function PromptInputAttachments({
       )}
       style={{ height: attachments.files.length ? height : 0 }}
       {...props}>
-      <div className="flex flex-wrap gap-2 p-3 pb-0" ref={contentRef}>
+       <div className="flex flex-wrap gap-2 p-4 pb-0" ref={contentRef}>
         {attachments.files.map((file) => (
           <Fragment key={file.id}>{children(file)}</Fragment>
         ))}
@@ -420,7 +420,7 @@ export const PromptInput = ({
       />
       <form
         className={cn(
-          "w-full overflow-hidden rounded-3xl border bg-background dark:bg-neutral-900/40 shadow-md select-none",
+          "w-full overflow-hidden rounded-3xl border border-border/50 bg-background/95 shadow-sm select-none",
           className
         )}
         onSubmit={handleSubmit}
@@ -444,7 +444,7 @@ export type PromptInputTextareaProps = ComponentProps<typeof Textarea>;
 export const PromptInputTextarea = ({
   onChange,
   className,
-  placeholder = "What would you like to do?",
+      placeholder = "Ask me anything...",
   ...props
 }: PromptInputTextareaProps) => {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -471,7 +471,7 @@ export const PromptInputTextarea = ({
   return (
     <Textarea
       className={cn(
-        "w-full resize-none rounded-none border-none px-4 pt-3 pb-0 shadow-none outline-none ring-0 text-lg",
+        "w-full resize-none rounded-none border-none px-6 pt-4 pb-0 shadow-none outline-none ring-0 text-xl",
         "field-sizing-content h-6 bg-transparent dark:bg-transparent",
         "max-h-72 overflow-y-auto",
         "focus-visible:ring-0",
@@ -496,7 +496,7 @@ export const PromptInputToolbar = ({
 }: PromptInputToolbarProps) => (
   <div
     className={cn(
-      "flex items-center justify-between py-1 px-1 pt-0",
+      "flex items-center justify-between py-2 px-2 pt-0",
       className
     )}
     {...props}
@@ -533,7 +533,7 @@ export const PromptInputButton = ({
   return (
     <Button
       className={cn(
-        "shrink-0 gap-1.5 rounded-2xl cursor-pointer p-2",
+        "shrink-0 gap-1.5 rounded-2xl cursor-pointer p-3",
         variant === "ghost" && "text-muted-foreground",
         newSize === "default",
         className
