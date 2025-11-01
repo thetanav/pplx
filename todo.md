@@ -7,8 +7,9 @@
 - [ ] own api keys
 - [x] working app
 - [x] some bug fixs
-- [ ] serach tool must have favicons after the searching indicators
+- [x] serach tool must have favicons after the searching indicators
 - [ ] launch - 30 oct 2025
+- [ ] paymen
 - [ ] more tools
   - [x] scrape a page
   - code executor

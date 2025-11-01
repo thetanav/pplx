@@ -24,6 +24,8 @@
     "@ai-sdk/react": "^2.0.44",
     "@modelcontextprotocol/sdk": "^1.18.0",
     "@openrouter/ai-sdk-provider": "^1.2.0",
+    "@polar-sh/better-auth": "^1.1.11",
+    "@polar-sh/sdk": "^0.40.1",
     "@prisma/client": "^6.18.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
