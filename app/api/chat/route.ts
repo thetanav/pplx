@@ -17,6 +17,7 @@ export type ChatTools = typeof localTools;
 const RequestBodySchema = z.object({
   messages: z.array(z.unknown()),
   model: z.string(),
+  deepresearch: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -36,7 +37,10 @@ export async function POST(req: Request) {
     );
   }
 
-  const { messages, model } = parsed.data;
+  const { messages, model, deepresearch } = parsed.data;
+
+  const baseTools = models.find((m) => m.value === model)?.tools ? localTools : {};
+  const tools = deepresearch ? { ...baseTools, deepresearch: localTools.deepresearch } : baseTools;
 
   const result = streamText({
     model: models.find((mo) => mo.value == model)?.end as LanguageModel,
@@ -44,7 +48,7 @@ export async function POST(req: Request) {
       messages as unknown as Parameters<typeof convertToModelMessages>[0]
     ),
     system: systemPrompt,
-    tools: models.find((m) => m.value === model)?.tools ? localTools : {},
+    tools,
     stopWhen: stepCountIs(20),
     maxOutputTokens: 4000,
     onError: (err) => {

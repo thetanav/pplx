@@ -7,7 +7,7 @@
 - [ ] own api keys
 - [x] working app
 - [x] some bug fixs
-- [x] serach tool must have favicons after the searching indicators
+- [x] search tool must have favicons after the searching indicators
 - [ ] launch - 30 oct 2025
 - [ ] paymen
 - [ ] more tools
