@@ -1,22 +1,48 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, HTMLAttributes } from "react";
+import { EditIcon, TrashIcon } from "lucide-react";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"];
+  actions?: React.ReactNode;
+  actionsVariant?: "hover" | "inline";
 };
 
-export const Message = ({ className, from, ...props }: MessageProps) => (
+export const Message = ({ className, from, actions, actionsVariant = "hover", ...props }: MessageProps) => (
   <div
     className={cn(
-      "group flex w-full items-end justify-end gap-2 py-4",
-      from === "user" ? "is-user" : "is-assistant flex-row-reverse justify-end",
+      "group w-full py-4 relative",
+      actionsVariant === "inline" && "relative",
       className
     )}
     {...props}
-  />
+  >
+    {actions && from === "user" && actionsVariant === "hover" && (
+      <div className="flex justify-end mb-2">
+        <div className="flex-shrink-0">
+          {actions}
+        </div>
+      </div>
+    )}
+    <div
+      className={cn(
+        "flex w-full items-end gap-2",
+        from === "user" ? "is-user justify-end" : "is-assistant flex-row-reverse justify-end"
+      )}
+    >
+      {props.children}
+      {actions && from === "assistant" && actionsVariant === "hover" && (
+        <div className="flex-shrink-0">
+          {actions}
+        </div>
+      )}
+    </div>
+    {actions && from === "user" && actionsVariant === "inline" && actions}
+  </div>
 );
 
 const messageContentVariants = cva(
@@ -73,3 +99,74 @@ export const MessageAvatar = ({
     <AvatarFallback>{name?.slice(0, 2) || "ME"}</AvatarFallback>
   </Avatar>
 );
+
+export type MessageActionsProps = {
+  role: UIMessage["role"];
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isEditing?: boolean;
+  variant?: "hover" | "inline";
+};
+
+export const MessageActions = ({
+  role,
+  onEdit,
+  onDelete,
+  isEditing,
+  variant = "hover"
+}: MessageActionsProps) => {
+  const canEdit = role === "user";
+  const canDelete = true; // Both user and assistant messages can be deleted
+
+  if (!canEdit && !canDelete) return null;
+
+  if (variant === "inline") {
+    // For inline variant (user messages), show delete button on hover without hiding content
+    return (
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        {canDelete && onDelete && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-6 w-6 rounded-full shadow-sm hover:shadow-md"
+            onClick={onDelete}
+          >
+            <TrashIcon className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  // Default hover variant for assistant messages (only edit button)
+  return (
+    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {canEdit && onEdit && !isEditing && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={onEdit}
+        >
+          <EditIcon className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  );
+};
+
+// Separate component for assistant message delete button
+export const AssistantMessageDelete = ({ onDelete }: { onDelete?: () => void }) => {
+  if (!onDelete) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-6 w-6 text-muted-foreground hover:text-foreground"
+      onClick={onDelete}
+    >
+      <TrashIcon className="h-3 w-3" />
+    </Button>
+  );
+};

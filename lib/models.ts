@@ -47,6 +47,15 @@ export const models = [
     end: openrouter.chat("z-ai/glm-4.5-air:free"),
   },
   {
+    name: "Z.AI: GLM 4.6",
+    value: "glm-4.6:cloud",
+    logo: "/zai.svg",
+    tools: true,
+    reasoning: true,
+    fast: true,
+    end: ollama("glm-4.6:cloud"),
+  },
+  {
     name: "Deepseek R1",
     value: "deepseek/deepseek-r1-0528:free",
     logo: "/deepseek.svg",

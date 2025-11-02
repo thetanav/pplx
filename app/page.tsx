@@ -5,9 +5,14 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { useEffect, useMemo, useState } from "react";
-import { useChat } from "@ai-sdk/react";
+import {
+  Message,
+  MessageContent,
+  MessageActions,
+  AssistantMessageDelete,
+} from "@/components/ai-elements/message";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useChat, type UIMessage } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
 
 import {
@@ -18,6 +23,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+
 import {
   Reasoning,
   ReasoningTrigger,
@@ -40,12 +48,64 @@ import AIInput from "@/components/ai-input";
 import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { useSession } from "@/lib/auth-client";
 
+const convertMessagesToMarkdown = (messages: UIMessage[]) => {
+  let md = "# Chat Export\n\n";
+  messages.forEach((message) => {
+    const role = message.role === "user" ? "User" : "Assistant";
+    md += `## ${role}\n\n`;
+
+    message.parts.forEach((part) => {
+      if (part.type === "text") {
+        md += `${part.text}\n\n`;
+      } else if (part.type === "reasoning") {
+        md += `**Reasoning:**\n\n${part.text}\n\n`;
+      } else if (
+        part.type.startsWith("tool-") ||
+        part.type === "dynamic-tool"
+      ) {
+        const toolType = part.type.replace("tool-", "");
+        md += `**Tool: ${toolType}**\n\n`;
+        const dyn = part as {
+          state?: string;
+          output?: { title?: string; link?: string }[];
+        };
+        if (dyn.state === "output-available" && Array.isArray(dyn.output)) {
+          dyn.output.forEach((item) => {
+            if (item.title && item.link) {
+              md += `- [${item.title}](${item.link})\n`;
+            }
+          });
+          md += "\n";
+        }
+      }
+    });
+  });
+  return md;
+};
+
+const downloadMarkdown = (content: string) => {
+  const blob = new Blob([content], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "chat-export.md";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 const ChatBotDemo = () => {
   const { data: session } = useSession();
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
+  const [localMessages, setLocalMessages] = useState<UIMessage[]>([]);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const lastSyncedCountRef = useRef(0);
   const LS_MODEL_KEY = "settings:model";
   const LS_MCP_KEY = "settings:mcpServers";
+  const LS_MESSAGES_KEY = "chat:messages";
 
   // Tool display names mapping
   const getToolDisplayName = (toolType: string, state: string) => {
@@ -63,7 +123,12 @@ const ChatBotDemo = () => {
 
     return baseNames[toolType] || toolType;
   };
-  const { messages, sendMessage, status, stop } = useChat({
+  const {
+    messages: chatMessages,
+    sendMessage,
+    status,
+    stop,
+  } = useChat({
     onError: (error) => {
       const message =
         (error as { message?: string })?.message ||
@@ -73,6 +138,39 @@ const ChatBotDemo = () => {
       });
     },
   });
+
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(LS_MESSAGES_KEY);
+      if (stored) {
+        const parsedMessages = JSON.parse(stored);
+        setLocalMessages(parsedMessages);
+      }
+    } catch (error) {
+      console.error("Failed to load messages from localStorage:", error);
+    }
+  }, []);
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(LS_MESSAGES_KEY, JSON.stringify(localMessages));
+    } catch (error) {
+      console.error("Failed to save messages to localStorage:", error);
+    }
+  }, [localMessages]);
+
+  // Sync new messages from useChat to local state
+  useEffect(() => {
+    // Only sync if we have new messages from useChat and we're not in the middle of editing
+    if (chatMessages.length > lastSyncedCountRef.current && !editingMessageId) {
+      const newMessages = chatMessages.slice(lastSyncedCountRef.current);
+      setLocalMessages((prev) => [...prev, ...newMessages]);
+      lastSyncedCountRef.current = chatMessages.length;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatMessages.length, editingMessageId]);
 
   useEffect(() => {
     try {
@@ -123,40 +221,157 @@ const ChatBotDemo = () => {
     setInput("");
   };
 
+  const handleDownload = () => {
+    const md = convertMessagesToMarkdown(localMessages);
+    downloadMarkdown(md);
+  };
+
+  const handleEditMessage = (messageId: string, currentText: string) => {
+    setEditingMessageId(messageId);
+    setEditingText(currentText);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingMessageId || !editingText.trim()) return;
+
+    setLocalMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === editingMessageId
+          ? {
+              ...msg,
+              parts: msg.parts.map((part) =>
+                part.type === "text" ? { ...part, text: editingText } : part
+              ),
+            }
+          : msg
+      )
+    );
+
+    setEditingMessageId(null);
+    setEditingText("");
+    toast.success("Message updated successfully");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditingText("");
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    setLocalMessages((prev) => {
+      const newMessages = prev.filter((msg) => msg.id !== messageId);
+      return newMessages;
+    });
+    toast.success("Message deleted successfully");
+  };
+
+  const handleClearAllMessages = () => {
+    if (
+      confirm(
+        "Are you sure you want to clear all messages? This action cannot be undone."
+      )
+    ) {
+      setLocalMessages([]);
+      localStorage.removeItem(LS_MESSAGES_KEY);
+      toast.success("All messages cleared");
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-3 relative size-full h-screen">
-      <Navbar />
-      {!messages || messages.length === 0 ? (
+      <Navbar
+        onDownload={handleDownload}
+        onClearMessages={handleClearAllMessages}
+        hasMessages={localMessages.length > 0}
+      />
+      {!localMessages || localMessages.length === 0 ? (
         <div className="absolute flex flex-col top-0 left-0 right-0 bottom-0 space-y-4 -z-50 items-center justify-center text-center mb-24">
           <SmileIcon className="w-16 h-16 text-muted-foreground animate-bounce" />
-          <h2 className="text-3xl font-semibold">Welcome to AI Chat</h2>
-          <p className="text-muted-foreground text-lg w-96">
-            Start a conversation by typing a message below. Choose your model
-            and attach files as needed.
-          </p>
+          <h2 className="text-3xl font-semibold">Welcome to Simp Chat</h2>
           <p className="text-muted-foreground text-sm w-96">
-            Note: Chats are temporary and not stored. Refreshing the page will clear the conversation.
+            Note: Chats are temporary and not stored. Refreshing the page will
+            clear the conversation.
           </p>
         </div>
       ) : null}
       <div className="flex flex-col h-full">
         <Conversation className="h-full">
           <ConversationContent>
-            {messages.map((message) => {
+            {localMessages.map((message: UIMessage) => {
               const metadata = message.metadata as
                 | undefined
                 | {
                     stats?: { inputTokens?: number; outputTokens?: number };
                     model: string;
                   };
+              const isEditing = editingMessageId === message.id;
+              const messageText =
+                message.parts.find((part) => part.type === "text")?.text || "";
+
               return (
                 <div key={message.id}>
-                  <Message from={message.role}>
+                  <Message
+                    from={message.role}
+                    actions={
+                      message.role === "user" ? (
+                        <MessageActions
+                          role={message.role}
+                          onEdit={() =>
+                            handleEditMessage(message.id, messageText)
+                          }
+                          onDelete={() => handleDeleteMessage(message.id)}
+                          isEditing={isEditing}
+                          variant="hover"
+                        />
+                      ) : (
+                        <MessageActions
+                          role={message.role}
+                          onEdit={() =>
+                            handleEditMessage(message.id, messageText)
+                          }
+                          isEditing={isEditing}
+                          variant="hover"
+                        />
+                      )
+                    }
+                    actionsVariant={
+                      message.role === "user" ? "hover" : "hover"
+                    }>
                     <MessageContent>
                       <div className="overflow-x-auto gap-4">
                         {message.parts.map((part, i) => {
                           switch (true) {
                             case part.type == "text":
+                              if (isEditing && message.role === "user") {
+                                return (
+                                  <div
+                                    key={`${message.id}-${i}`}
+                                    className="space-y-2">
+                                    <Textarea
+                                      value={editingText}
+                                      onChange={(e) =>
+                                        setEditingText(e.target.value)
+                                      }
+                                      className="w-full resize-none"
+                                      rows={3}
+                                      autoFocus
+                                    />
+                                    <div className="flex gap-2">
+                                      <Button
+                                        size="sm"
+                                        onClick={handleSaveEdit}>
+                                        Save
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleCancelEdit}>
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                );
+                              }
                               return (
                                 <Response
                                   key={`${message.id}-${i}`}
@@ -310,7 +525,7 @@ const ChatBotDemo = () => {
                               </div>
                             </div>
 
-                            {/* Collect search results from tool outputs */}
+                            {/* Collect search results from tool outputs and show sources + delete */}
                             {(() => {
                               const searchResults: Array<{
                                 title: string;
@@ -338,56 +553,68 @@ const ChatBotDemo = () => {
                                 }
                               });
 
-                              return searchResults.length > 0 ? (
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm  text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
-                                      <GlobeIcon className="w-4 h-4" />
-                                      {searchResults.length} sources
-                                    </button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                                    <DialogHeader>
-                                      <DialogTitle>Search Results</DialogTitle>
-                                      <DialogDescription>
-                                        Sources used to generate this response
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4 mt-4">
-                                      {searchResults.map((result, i) => (
-                                        <div
-                                          key={i}
-                                          className="border rounded-lg p-4 hover:bg-accent transition-colors">
-                                          <div className="flex items-start gap-3">
-                                            <div className="flex-1 min-w-0">
-                                              <h3 className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-1">
-                                                <a
-                                                  href={result.link}
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  className="line-clamp-1">
-                                                  {result.title}
-                                                </a>
-                                              </h3>
-                                              <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-xs text-green-600 dark:text-green-400 truncate">
-                                                  {
-                                                    new URL(result.link)
-                                                      .hostname
-                                                  }
-                                                </span>
+                              return (
+                                <div className="flex items-center gap-2">
+                                  {searchResults.length > 0 && (
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
+                                          <GlobeIcon className="w-4 h-4" />
+                                          {searchResults.length} sources
+                                        </button>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                        <DialogHeader>
+                                          <DialogTitle>
+                                            Search Results
+                                          </DialogTitle>
+                                          <DialogDescription>
+                                            Sources used to generate this
+                                            response
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 mt-4">
+                                          {searchResults.map((result, i) => (
+                                            <div
+                                              key={i}
+                                              className="border rounded-lg p-4 hover:bg-accent transition-colors">
+                                              <div className="flex items-start gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                  <h3 className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-1">
+                                                    <a
+                                                      href={result.link}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      className="line-clamp-1">
+                                                      {result.title}
+                                                    </a>
+                                                  </h3>
+                                                  <div className="flex items-center gap-2 mb-2">
+                                                    <span className="text-xs text-green-600 dark:text-green-400 truncate">
+                                                      {
+                                                        new URL(result.link)
+                                                          .hostname
+                                                      }
+                                                    </span>
+                                                  </div>
+                                                  <p className="text-sm text-muted-foreground line-clamp-3">
+                                                    {result.snippet}
+                                                  </p>
+                                                </div>
                                               </div>
-                                              <p className="text-sm text-muted-foreground line-clamp-3">
-                                                {result.snippet}
-                                              </p>
                                             </div>
-                                          </div>
+                                          ))}
                                         </div>
-                                      ))}
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
-                              ) : null;
+                                      </DialogContent>
+                                    </Dialog>
+                                  )}
+                                  <AssistantMessageDelete
+                                    onDelete={() =>
+                                      handleDeleteMessage(message.id)
+                                    }
+                                  />
+                                </div>
+                              );
                             })()}
                           </div>
                         </div>
