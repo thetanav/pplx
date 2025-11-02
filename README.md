@@ -1,4 +1,4 @@
-PPLX Chat — Next.js app with AI chat models (OpenRouter, Groq, Google, Perplexity).
+Simp Chat — Simple AI chat with lots of models and tools.
 
 ## Quick start
 
