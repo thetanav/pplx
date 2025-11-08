@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
 import { Toaster } from "sonner";
-import Navbar from "@/components/navbar";
 
 const sans = Inter({
   subsets: ["latin"],

@@ -149,7 +149,7 @@ export function PromptInputAttachments({
       )}
       style={{ height: attachments.files.length ? height : 0 }}
       {...props}>
-       <div className="flex flex-wrap gap-2 p-4 pb-0" ref={contentRef}>
+      <div className="flex flex-wrap gap-2 p-4 pb-0" ref={contentRef}>
         {attachments.files.map((file) => (
           <Fragment key={file.id}>{children(file)}</Fragment>
         ))}
@@ -195,8 +195,6 @@ export type PromptInputProps = Omit<
   multiple?: boolean;
   // When true, accepts drops anywhere on document. Default false (opt-in).
   globalDrop?: boolean;
-  // Render a hidden input with given name and keep it in sync for native form posts. Default false.
-  syncHiddenInput?: boolean;
   // Minimal constraints
   maxFiles?: number;
   maxFileSize?: number; // bytes
@@ -215,7 +213,6 @@ export const PromptInput = ({
   accept,
   multiple,
   globalDrop,
-  syncHiddenInput,
   maxFiles,
   maxFileSize,
   onError,
@@ -315,17 +312,6 @@ export const PromptInput = ({
   const clear = useCallback(() => {
     setItems([]);
   }, []);
-
-  // Note: File input cannot be programmatically set for security reasons
-  // The syncHiddenInput prop is no longer functional
-  useEffect(() => {
-    if (syncHiddenInput && inputRef.current) {
-      // Clear the input when items are cleared
-      if (items.length === 0) {
-        inputRef.current.value = "";
-      }
-    }
-  }, [items, syncHiddenInput]);
 
   // Attach drop handlers on nearest form and document (opt-in)
   useEffect(() => {
@@ -444,7 +430,7 @@ export type PromptInputTextareaProps = ComponentProps<typeof Textarea>;
 export const PromptInputTextarea = ({
   onChange,
   className,
-      placeholder = "Ask me anything...",
+  placeholder = "Ask me anything...",
   ...props
 }: PromptInputTextareaProps) => {
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -512,7 +498,7 @@ export const PromptInputTools = ({
   <div
     className={cn(
       "flex items-center gap-1",
-      "[&_button]:rounded-2xl",
+      "[&_button]:rounded-2xl [&_button]:bg-transparent",
       className
     )}
     {...props}
@@ -588,11 +574,8 @@ export const PromptInputActionMenuItem = ({
   className,
   ...props
 }: PromptInputActionMenuItemProps) => (
-  <DropdownMenuItem className={cn(className)} {...props} />
+  <DropdownMenuItem className={cn("[&>svg]:hidden", className)} {...props} />
 );
-
-// Note: Actions that perform side-effects (like opening a file dialog)
-// are provided in opt-in modules (e.g., prompt-input-attachments).
 
 export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
   status?: ChatStatus;
@@ -649,7 +632,7 @@ export const PromptInputModelSelectTrigger = ({
   <SelectTrigger
     className={cn(
       "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors rounded-full",
-      'hover:bg-accent hover:text-foreground [&[aria-expanded="true"]]:bg-accent [&[aria-expanded="true"]]:text-foreground',
+      'hover:text-foreground [&[aria-expanded="true"]]:text-foreground',
       className
     )}
     {...props}
@@ -673,7 +656,7 @@ export const PromptInputModelSelectItem = ({
   className,
   ...props
 }: PromptInputModelSelectItemProps) => (
-  <SelectItem className={cn(className)} {...props} />
+  <SelectItem className={cn("[&>svg]:hidden", className)} {...props} />
 );
 
 export type PromptInputModelSelectValueProps = ComponentProps<

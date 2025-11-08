@@ -1,7 +1,17 @@
-import { LoaderCircle, LoaderCircleIcon, Settings2Icon, DownloadIcon, Trash2Icon } from "lucide-react";
+import {
+  LoaderCircleIcon,
+  Settings2Icon,
+  DownloadIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { ModeToggle } from "./theme_toggle";
 import { Button } from "./ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 
@@ -11,11 +21,15 @@ interface NavbarProps {
   hasMessages?: boolean;
 }
 
-export default function Navbar({ onDownload, onClearMessages, hasMessages }: NavbarProps) {
+export default function Navbar({
+  onDownload,
+  onClearMessages,
+  hasMessages,
+}: NavbarProps) {
   const { data: session, isPending } = useSession();
   return (
     <TooltipProvider>
-      <div className="bg-background border shadow fixed top-4 right-4 flex rounded-lg z-50 items-center p-1">
+      <div className="bg-accent/20 border shadow fixed top-4 right-4 flex rounded-lg z-50 items-center p-1">
         <ModeToggle />
         {isPending ? (
           <LoaderCircleIcon className="w-4 h-4 animate-spin" />
@@ -40,7 +54,10 @@ export default function Navbar({ onDownload, onClearMessages, hasMessages }: Nav
             {hasMessages && onClearMessages && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant={"ghost"} size={"icon"} onClick={onClearMessages}>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    onClick={onClearMessages}>
                     <Trash2Icon className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>

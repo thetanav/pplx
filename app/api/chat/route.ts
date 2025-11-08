@@ -8,7 +8,6 @@ import {
 import { models } from "@/lib/models";
 import { localTools } from "@/lib/tools";
 import { systemPrompt } from "@/lib/prompt";
-import { NextResponse } from "next/server";
 
 export const maxDuration = 30;
 
@@ -39,8 +38,12 @@ export async function POST(req: Request) {
 
   const { messages, model, deepresearch } = parsed.data;
 
-  const baseTools = models.find((m) => m.value === model)?.tools ? localTools : {};
-  const tools = deepresearch ? { ...baseTools, deepresearch: localTools.deepresearch } : baseTools;
+  const baseTools = models.find((m) => m.value === model)?.tools
+    ? localTools
+    : {};
+  const tools = deepresearch
+    ? { ...baseTools, deepresearch: localTools.deepresearch }
+    : baseTools;
 
   const result = streamText({
     model: models.find((mo) => mo.value == model)?.end as LanguageModel,

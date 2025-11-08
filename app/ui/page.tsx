@@ -78,7 +78,6 @@ import {
   Conversation,
   ConversationContent,
 } from "@/components/ai-elements/conversation";
-import { Image } from "@/components/ai-elements/image";
 import { InlineCitation } from "@/components/ai-elements/inline-citation";
 import { Loader } from "@/components/ai-elements/loader";
 import { Message, MessageContent } from "@/components/ai-elements/message";
