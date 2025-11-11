@@ -1,13 +1,8 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "./lib/generated/prisma/client";
-import {
-  polar,
-  checkout,
-} from "@polar-sh/better-auth";
+import { prisma } from "./lib/db";
+import { polar, checkout } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-
-const prisma = new PrismaClient();
 
 const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,

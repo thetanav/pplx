@@ -24,9 +24,23 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+  conversations Conversations[]
 
   @@unique([email])
   @@map("user")
+}
+
+model Conversations {
+  id String @id @default(uuid())
+  title String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String
+  messages Json @default("[]")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("conversations")
 }
 
 model Session {

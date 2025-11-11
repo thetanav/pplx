@@ -406,7 +406,7 @@ export const PromptInput = ({
       />
       <form
         className={cn(
-          "w-full overflow-hidden rounded-3xl border border-border/50 bg-background/95 shadow-sm select-none",
+          "w-full overflow-hidden rounded-3xl border-1 border-border/50 bg-background/95 shadow-sm ring-border/50 select-none ring-1",
           className
         )}
         onSubmit={handleSubmit}

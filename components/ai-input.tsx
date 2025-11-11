@@ -59,7 +59,7 @@ export default function AIInput({
       globalDrop
       multiple
       accept="image/*"
-      className="border-t bg-background/80 backdrop-blur-md border-border/50 shadow-lg">
+      className="border-t bg-background/80 backdrop-blur-md border-border/50 shadow-lg outline-none">
       <PromptInputBody>
         <PromptInputAttachments>
           {(attachment) => <PromptInputAttachment data={attachment} />}
@@ -68,7 +68,7 @@ export default function AIInput({
           onChange={(e) => setInput(e.target.value)}
           value={input}
           placeholder="Ask me anything..."
-          className="min-h-[60px] resize-none border-0 bg-transparent px-6 py-4 text-base focus:ring-0 placeholder:text-muted-foreground/60"
+          className="min-h-[60px] resize-none border-0 bg-transparent px-6 py-4 text-base focus:ring-0 placeholder:text-muted-foreground/60 outline-none"
         />
       </PromptInputBody>
       <PromptInputToolbar>
@@ -83,7 +83,7 @@ export default function AIInput({
             value={model}>
             <PromptInputModelSelectTrigger className="bg-transparent px-2 py-1 text-xs font-medium border-none shadow-none h-8">
               <span className="truncate max-w-[100px]">
-                {models.find(m => m.value === model)?.name || model}
+                {models.find((m) => m.value === model)?.name || model}
               </span>
             </PromptInputModelSelectTrigger>
             <PromptInputModelSelectContent>
@@ -133,7 +133,9 @@ export default function AIInput({
             variant={deepresearch ? "default" : "ghost"}
             onClick={() => setDeepresearch(!deepresearch)}
             title="Toggle Deep Research"
-            className={deepresearch ? "!bg-accent !text-accent-foreground" : ""}>
+            className={
+              deepresearch ? "!bg-accent !text-accent-foreground" : ""
+            }>
             <TelescopeIcon className="w-4 h-4" />
           </PromptInputButton>
         </PromptInputTools>

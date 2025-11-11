@@ -12,33 +12,35 @@ export type MessageProps = HTMLAttributes<HTMLDivElement> & {
   actionsVariant?: "hover" | "inline";
 };
 
-export const Message = ({ className, from, actions, actionsVariant = "hover", ...props }: MessageProps) => (
+export const Message = ({
+  className,
+  from,
+  actions,
+  actionsVariant = "hover",
+  ...props
+}: MessageProps) => (
   <div
     className={cn(
       "group w-full py-6 relative",
       actionsVariant === "inline" && "relative",
       className
     )}
-    {...props}
-  >
+    {...props}>
     {actions && from === "user" && actionsVariant === "hover" && (
       <div className="flex justify-end mb-2">
-        <div className="flex-shrink-0">
-          {actions}
-        </div>
+        <div className="flex-shrink-0">{actions}</div>
       </div>
     )}
     <div
       className={cn(
         "flex w-full items-end gap-2",
-        from === "user" ? "is-user justify-end" : "is-assistant flex-row-reverse justify-end"
-      )}
-    >
+        from === "user"
+          ? "is-user justify-end"
+          : "is-assistant flex-row-reverse justify-end"
+      )}>
       {props.children}
       {actions && from === "assistant" && actionsVariant === "hover" && (
-        <div className="flex-shrink-0">
-          {actions}
-        </div>
+        <div className="flex-shrink-0">{actions}</div>
       )}
     </div>
     {actions && from === "user" && actionsVariant === "inline" && actions}
@@ -113,7 +115,7 @@ export const MessageActions = ({
   onEdit,
   onDelete,
   isEditing,
-  variant = "hover"
+  variant = "hover",
 }: MessageActionsProps) => {
   const canEdit = role === "user";
   const canDelete = true; // Both user and assistant messages can be deleted
@@ -125,12 +127,7 @@ export const MessageActions = ({
     return (
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         {canDelete && onDelete && (
-          <Button
-            variant="secondary"
-            size="icon"
-            className="h-6 w-6 rounded-full shadow-sm hover:shadow-md"
-            onClick={onDelete}
-          >
+          <Button variant="secondary" size="icon" onClick={onDelete}>
             <TrashIcon className="h-3 w-3" />
           </Button>
         )}
@@ -142,12 +139,7 @@ export const MessageActions = ({
   return (
     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
       {canEdit && onEdit && !isEditing && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6"
-          onClick={onEdit}
-        >
+        <Button variant="ghost" size="icon" onClick={onEdit}>
           <EditIcon className="h-3 w-3" />
         </Button>
       )}
@@ -156,16 +148,15 @@ export const MessageActions = ({
 };
 
 // Separate component for assistant message delete button
-export const AssistantMessageDelete = ({ onDelete }: { onDelete?: () => void }) => {
+export const AssistantMessageDelete = ({
+  onDelete,
+}: {
+  onDelete?: () => void;
+}) => {
   if (!onDelete) return null;
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="h-6 w-6 text-muted-foreground hover:text-foreground"
-      onClick={onDelete}
-    >
+    <Button variant="ghost" size="icon" onClick={onDelete}>
       <TrashIcon className="h-3 w-3" />
     </Button>
   );

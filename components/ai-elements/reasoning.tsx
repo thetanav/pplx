@@ -17,6 +17,7 @@ import {
   useState,
 } from "react";
 import { Response } from "./response";
+import Shimmer from "./shimmer";
 
 type ReasoningContextValue = {
   isStreaming: boolean;
@@ -96,6 +97,10 @@ export const Reasoning = memo(
       setIsOpen(newOpen);
     };
 
+    if (isStreaming) {
+      return <Shimmer text="thinking..." />;
+    }
+
     // Only render if streaming (thinking) or if it has been opened manually
     if (!isStreaming && !isOpen) {
       return null;
@@ -123,13 +128,15 @@ export const ReasoningTrigger = memo(
     const { isStreaming } = useReasoning();
 
     // Beautiful shimmer effect without text when thinking
-    const triggerContent = children ?? (isStreaming ? (
-      <div className="flex items-center justify-center">
-        <div className="relative w-48 h-12 overflow-hidden rounded-2xl bg-gradient-to-r from-primary/5 via-primary/15 to-primary/5 shadow-inner">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent rounded-2xl shimmer-thinking"></div>
+    const triggerContent =
+      children ??
+      (isStreaming ? (
+        <div className="flex items-center justify-center">
+          <div className="relative w-48 h-12 overflow-hidden rounded-2xl bg-gradient-to-r from-primary/5 via-primary/15 to-primary/5 shadow-inner">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent rounded-2xl shimmer-thinking"></div>
+          </div>
         </div>
-      </div>
-    ) : null);
+      ) : null);
 
     if (!triggerContent) {
       return null;

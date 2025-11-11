@@ -38,16 +38,13 @@ import { models } from "@/lib/models";
 import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
-import {
-  BoxIcon,
-  GlobeIcon,
-  LoaderCircleIcon,
-  SmileIcon,
-} from "lucide-react";
+import { BoxIcon, GlobeIcon, LoaderCircleIcon, SmileIcon } from "lucide-react";
 import Navbar from "@/components/navbar";
 import AIInput from "@/components/ai-input";
 import { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { useSession } from "@/lib/auth-client";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import Shimmer from "@/components/ai-elements/shimmer";
 
 const convertMessagesToMarkdown = (messages: UIMessage[]) => {
   let md = "# Chat Export\n\n";
@@ -100,13 +97,11 @@ const ChatBotDemo = () => {
   const { data: session } = useSession();
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
+  // TODO: rename to messages
   const [localMessages, setLocalMessages] = useState<UIMessage[]>([]);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
-  const lastSyncedCountRef = useRef(0);
-  const LS_MODEL_KEY = "settings:model";
-  const LS_MCP_KEY = "settings:mcpServers";
-  const LS_MESSAGES_KEY = "chat:messages";
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   // Tool display names mapping
   const getToolDisplayName = (toolType: string, state: string) => {
@@ -138,64 +133,24 @@ const ChatBotDemo = () => {
         description: message,
       });
     },
+    onFinish: (messages) => {
+      if (conversationId) {
+        fetch(`/api/conversations/${conversationId}`, {
+          method: "PUT",
+          body: JSON.stringify({ messages }),
+          headers: { "Content-Type": "application/json" },
+        }).catch((error) =>
+          console.error("Error updating conversation:", error)
+        );
+      }
+    },
   });
 
-  // Load messages from localStorage on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(LS_MESSAGES_KEY);
-      if (stored) {
-        const parsedMessages = JSON.parse(stored);
-        setLocalMessages(parsedMessages);
-      }
-    } catch (error) {
-      console.error("Failed to load messages from localStorage:", error);
-    }
-  }, []);
+    setLocalMessages(chatMessages);
+  }, [chatMessages]);
 
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    try {
-      localStorage.setItem(LS_MESSAGES_KEY, JSON.stringify(localMessages));
-    } catch (error) {
-      console.error("Failed to save messages to localStorage:", error);
-    }
-  }, [localMessages]);
-
-  // Sync new messages from useChat to local state
-  useEffect(() => {
-    // Only sync if we have new messages from useChat and we're not in the middle of editing
-    if (chatMessages.length > lastSyncedCountRef.current && !editingMessageId) {
-      const newMessages = chatMessages.slice(lastSyncedCountRef.current);
-      setLocalMessages((prev) => [...prev, ...newMessages]);
-      lastSyncedCountRef.current = chatMessages.length;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatMessages.length, editingMessageId]);
-
-  useEffect(() => {
-    try {
-      const storedModel = localStorage.getItem(LS_MODEL_KEY);
-      if (storedModel) setModel(storedModel);
-    } catch {}
-  }, []);
-
-  const activeMcpUrl = useMemo(() => {
-    try {
-      const storedServers = localStorage.getItem(LS_MCP_KEY);
-      if (!storedServers) return undefined;
-      const list = JSON.parse(storedServers) as {
-        url: string;
-        active?: boolean;
-      }[];
-      const active = list.find((s) => s.active);
-      return active?.url;
-    } catch {
-      return undefined;
-    }
-  }, []);
-
-  const handleSubmit = (
+  const handleSubmit = async (
     message: PromptInputMessage,
     deepresearch?: boolean
   ) => {
@@ -206,6 +161,24 @@ const ChatBotDemo = () => {
       return;
     }
 
+    if (!conversationId) {
+      const title = message.text?.slice(0, 50) || "New Chat";
+      try {
+        const res = await fetch("/api/conversations", {
+          method: "POST",
+          body: JSON.stringify({ title }),
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!res.ok) throw new Error("Failed to create conversation");
+        const { id } = await res.json();
+        setConversationId(id);
+      } catch (error) {
+        console.error("Error creating conversation:", error);
+        toast.error("Failed to start conversation");
+        return;
+      }
+    }
+
     sendMessage(
       {
         text: message.text || "Sent with attachments",
@@ -214,7 +187,6 @@ const ChatBotDemo = () => {
       {
         body: {
           model: model,
-          mcpGatewayUrl: activeMcpUrl,
           deepresearch,
         },
       }
@@ -232,81 +204,34 @@ const ChatBotDemo = () => {
     setEditingText(currentText);
   };
 
-  const handleSaveEdit = () => {
-    if (!editingMessageId || !editingText.trim()) return;
-
-    setLocalMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === editingMessageId
-          ? {
-              ...msg,
-              parts: msg.parts.map((part) =>
-                part.type === "text" ? { ...part, text: editingText } : part
-              ),
-            }
-          : msg
-      )
-    );
-
-    setEditingMessageId(null);
-    setEditingText("");
-    toast.success("Message updated successfully");
-  };
-
-  const handleCancelEdit = () => {
-    setEditingMessageId(null);
-    setEditingText("");
-  };
-
-  const handleDeleteMessage = (messageId: string) => {
-    setLocalMessages((prev) => {
-      const newMessages = prev.filter((msg) => msg.id !== messageId);
-      return newMessages;
-    });
-    toast.success("Message deleted successfully");
-  };
-
-  const handleClearAllMessages = () => {
-    if (
-      confirm(
-        "Are you sure you want to clear all messages? This action cannot be undone."
-      )
-    ) {
-      setLocalMessages([]);
-      localStorage.removeItem(LS_MESSAGES_KEY);
-      toast.success("All messages cleared");
-    }
-  };
-
   return (
-    <div className="max-w-3xl mx-auto p-3 relative size-full h-screen">
+    <div className="max-w-3xl mx-auto pt-0 p-3 relative size-full h-screen">
       <Navbar
         onDownload={handleDownload}
-        onClearMessages={handleClearAllMessages}
         hasMessages={localMessages.length > 0}
       />
-       {!localMessages || localMessages.length === 0 ? (
+      {!localMessages || localMessages.length === 0 ? (
         <div className="absolute flex flex-col top-0 left-0 right-0 bottom-0 space-y-8 -z-50 items-center justify-center text-center mb-24 px-4">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl scale-150"></div>
-            <SmileIcon className="relative w-24 h-24 text-primary drop-shadow-lg" suppressHydrationWarning={true} />
+            <SmileIcon
+              className="relative w-24 h-24 text-primary drop-shadow-lg"
+              suppressHydrationWarning={true}
+            />
           </div>
           <div className="space-y-4">
             <h2 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent leading-tight">
               Welcome to Simp AI
             </h2>
             <p className="text-muted-foreground text-lg max-w-md leading-relaxed font-medium">
-              Experience the future of AI conversation. Ask anything, explore ideas, and discover insights with our advanced AI assistant.
+              Experience the future of AI conversation. Ask anything, explore
+              ideas, and discover insights with our advanced agentic AI.
             </p>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full border">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            AI is ready to assist you
           </div>
         </div>
       ) : null}
       <div className="flex flex-col h-full">
-        <Conversation className="h-full">
+        <Conversation className="h-full w-full">
           <ConversationContent>
             {localMessages.map((message: UIMessage) => {
               const metadata = message.metadata as
@@ -330,7 +255,6 @@ const ChatBotDemo = () => {
                           onEdit={() =>
                             handleEditMessage(message.id, messageText)
                           }
-                          onDelete={() => handleDeleteMessage(message.id)}
                           isEditing={isEditing}
                           variant="hover"
                         />
@@ -353,36 +277,6 @@ const ChatBotDemo = () => {
                         {message.parts.map((part, i) => {
                           switch (true) {
                             case part.type == "text":
-                              if (isEditing && message.role === "user") {
-                                return (
-                                  <div
-                                    key={`${message.id}-${i}`}
-                                    className="space-y-2">
-                                    <Textarea
-                                      value={editingText}
-                                      onChange={(e) =>
-                                        setEditingText(e.target.value)
-                                      }
-                                      className="w-full resize-none"
-                                      rows={3}
-                                      autoFocus
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button
-                                        size="sm"
-                                        onClick={handleSaveEdit}>
-                                        Save
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={handleCancelEdit}>
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                );
-                              }
                               return (
                                 <Response
                                   key={`${message.id}-${i}`}
@@ -394,14 +288,8 @@ const ChatBotDemo = () => {
                               return (
                                 <Reasoning
                                   key={`${message.id}-${i}`}
-                                  className="w-full bg-muted/50 border border-border rounded-lg my-2"
                                   isStreaming={status === "streaming"}
-                                  defaultOpen={true}>
-                                  <ReasoningTrigger />
-                                  <ReasoningContent>
-                                    {part.text}
-                                  </ReasoningContent>
-                                </Reasoning>
+                                  defaultOpen={true}></Reasoning>
                               );
                             case part.type.startsWith("tool-") ||
                               part.type == "dynamic-tool":
@@ -425,67 +313,24 @@ const ChatBotDemo = () => {
                               }
 
                               return (
-                                <Tool
-                                  key={`${message.id}-${i}-${toolType}`}
-                                  className="bg-muted/50 border border-border rounded-lg p-3 my-2">
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex-shrink-0">
-                                      <ToolHeader
-                                        name={getToolDisplayName(
-                                          toolType,
-                                          dyn.state
-                                        )}
-                                        type={`tool-${toolType}`}
-                                        state={dyn.state}
-                                      />
-                                    </div>
-                                    {dyn.state === "output-available" &&
-                                      Array.isArray(dyn.output) && (
-                                        <div className="flex ml-auto">
-                                          {dyn.output
-                                            .slice(0, 5)
-                                            .map((item, outputIndex) => {
-                                              let hostname: string;
-                                              try {
-                                                hostname = new URL(item.link)
-                                                  .hostname;
-                                              } catch {
-                                                hostname = "external";
-                                              }
-
-                                               return (
-                                                 <Image
-                                                   key={`${message.id}-${i}-${toolType}-${outputIndex}`}
-                                                   src={`https://www.google.com/s2/favicons?domain=${hostname}`}
-                                                   alt={`Favicon for ${hostname}`}
-                                                   width={24}
-                                                   height={24}
-                                                   className="rounded-full border-2 border-white shadow-sm w-6 h-6 -ml-2 bg-white"
-                                                 />
-                                               );
-                                            })}
-                                          {dyn.output.length > 5 && (
-                                            <div className="rounded-full border-2 border-white shadow-sm w-6 h-6 -ml-2 bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
-                                              +{dyn.output.length - 5}
-                                            </div>
-                                          )}
-                                        </div>
-                                      )}
-                                  </div>
+                                <Tool key={`${message.id}-${i}-${toolType}`}>
+                                  {dyn.state !== "output-available" && (
+                                    <Shimmer text="calling more tools..." />
+                                  )}
                                 </Tool>
                               );
-                             case part.type == "file" &&
-                               part.mediaType.startsWith("image/"):
-                               return (
-                                 <Image
-                                   alt={part.filename ?? "Simp AI image gen"}
-                                   src={part.url}
-                                   key={`${part.filename}`}
-                                   width={100}
-                                   height={100}
-                                   className="rounded-md"
-                                 />
-                               );
+                            case part.type == "file" &&
+                              part.mediaType.startsWith("image/"):
+                              return (
+                                <Image
+                                  alt={part.filename ?? "Simp AI image gen"}
+                                  src={part.url}
+                                  key={`${part.filename}`}
+                                  width={100}
+                                  height={100}
+                                  className="rounded-md"
+                                />
+                              );
                             default:
                               return null;
                           }
@@ -495,24 +340,11 @@ const ChatBotDemo = () => {
                       {message.role === "assistant" && (
                         <div className="w-full">
                           <div className="flex items-center justify-between w-full">
-                             <div className="flex items-center gap-3 text-sm">
-                               <div className="flex items-center gap-1">
-                                {(() => {
-                                  switch (status) {
-                                     case "streaming":
-                                       return (
-                                         <LoaderCircleIcon className="w-3 h-3 animate-spin text-green-500" suppressHydrationWarning={true} />
-                                       );
-                                     default:
-                                       return (
-                                         <BoxIcon className="w-3 h-3 text-muted-foreground" suppressHydrationWarning={true} />
-                                       );
-                                  }
-                                })()}
-                                <span className="font-medium text-muted-foreground">
-                                  {metadata?.model}
-                                </span>
-                              </div>
+                            <div className="flex items-center gap-1">
+                              <BoxIcon className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-muted-foreground">
+                                {metadata?.model}
+                              </span>
                             </div>
 
                             {/* Collect search results from tool outputs and show sources + delete */}
@@ -548,10 +380,13 @@ const ChatBotDemo = () => {
                                   {searchResults.length > 0 && (
                                     <Dialog>
                                       <DialogTrigger asChild>
-                                         <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
-                                           <GlobeIcon className="w-4 h-4" suppressHydrationWarning={true} />
-                                           {searchResults.length} sources
-                                         </button>
+                                        <button className="flex items-center justify-center gap-1 text-sm text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
+                                          <GlobeIcon
+                                            className="w-4 h-4"
+                                            suppressHydrationWarning={true}
+                                          />
+                                          {searchResults.length}
+                                        </button>
                                       </DialogTrigger>
                                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                                         <DialogHeader>
@@ -598,11 +433,6 @@ const ChatBotDemo = () => {
                                       </DialogContent>
                                     </Dialog>
                                   )}
-                                  <AssistantMessageDelete
-                                    onDelete={() =>
-                                      handleDeleteMessage(message.id)
-                                    }
-                                  />
                                 </div>
                               );
                             })()}

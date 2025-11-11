@@ -10,6 +10,7 @@
 - [x] search tool must have favicons after the searching indicators
 - [ ] launch - 30 oct 2025
 - [ ] paymen
+- [ ] save conversations
 - [ ] more tools
   - [x] scrape a page
   - code executor
