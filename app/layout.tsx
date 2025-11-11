@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme_provider";
 import { Toaster } from "sonner";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 const sans = Inter({
   subsets: ["latin"],
@@ -56,7 +58,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <Toaster position="top-right" closeButton />
-          {children}
+          <SidebarProvider>
+            <AppSidebar />
+            {children}
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

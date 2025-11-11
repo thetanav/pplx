@@ -4,9 +4,6 @@ import { PrismaClient } from "./lib/generated/prisma/client";
 import {
   polar,
   checkout,
-  portal,
-  usage,
-  webhooks,
 } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 

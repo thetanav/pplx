@@ -15,7 +15,7 @@ export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 export const Message = ({ className, from, actions, actionsVariant = "hover", ...props }: MessageProps) => (
   <div
     className={cn(
-      "group w-full py-4 relative",
+      "group w-full py-6 relative",
       actionsVariant === "inline" && "relative",
       className
     )}
@@ -51,8 +51,8 @@ const messageContentVariants = cva(
     variants: {
       variant: {
         contained: [
-          "max-w-[80%]",
-          "group-[.is-user]:bg-accent group-[.is-user]:text-primary group-[.is-user]:py-3 group-[.is-user]:px-4 group-[.is-user]:rounded-xl",
+          "max-w-[85%]",
+          "group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground group-[.is-user]:py-4 group-[.is-user]:px-5 group-[.is-user]:rounded-2xl group-[.is-user]:shadow-sm",
           "group-[.is-assistant]:text-foreground",
         ],
         flat: [

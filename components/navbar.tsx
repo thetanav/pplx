@@ -1,5 +1,4 @@
 import {
-  LoaderCircleIcon,
   Settings2Icon,
   DownloadIcon,
   Trash2Icon,
@@ -13,6 +12,7 @@ import {
   TooltipTrigger,
 } from "./ui/tooltip";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "@/lib/auth-client";
 
 interface NavbarProps {
@@ -26,69 +26,74 @@ export default function Navbar({
   onClearMessages,
   hasMessages,
 }: NavbarProps) {
-  const { data: session, isPending } = useSession();
+  const { data: session } = useSession();
   return (
     <TooltipProvider>
-      <div className="bg-accent/20 border shadow fixed top-4 right-4 flex rounded-lg z-50 items-center p-1">
-        <ModeToggle />
-        {isPending ? (
-          <LoaderCircleIcon className="w-4 h-4 animate-spin" />
-        ) : !session ? (
-          <Button variant={"default"} asChild>
-            <Link href="/signin">Sign in</Link>
-          </Button>
-        ) : (
-          <div className="flex items-center">
-            {hasMessages && onDownload && (
+      <nav className="fixed top-6 right-6 z-50">
+        <div className="bg-card/80 backdrop-blur-md border shadow-lg flex rounded-xl items-center p-2 ring-1 ring-border/50">
+          <ModeToggle />
+          {!session ? (
+            <Button variant={"default"} size="sm" asChild>
+              <Link href="/signin">Sign in</Link>
+            </Button>
+          ) : (
+            <div className="flex items-center">
+              {hasMessages && onDownload && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                     <Button
+                       variant={"ghost"}
+                       size={"icon"}
+                       onClick={onDownload}>
+                      <DownloadIcon className="w-4 h-4" suppressHydrationWarning={true} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download chat as Markdown</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              {hasMessages && onClearMessages && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                     <Button
+                       variant={"ghost"}
+                       size={"icon"}
+                       onClick={onClearMessages}>
+                      <Trash2Icon className="w-4 h-4" suppressHydrationWarning={true} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Clear all messages</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant={"ghost"} size={"icon"} onClick={onDownload}>
-                    <DownloadIcon className="w-4 h-4" />
-                  </Button>
+                   <Button variant={"ghost"} size={"icon"} asChild>
+                     <Link href="/settings">
+                       <Settings2Icon className="w-4 h-4" suppressHydrationWarning={true} />
+                     </Link>
+                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Download chat as Markdown</p>
+                  <p>Settings</p>
                 </TooltipContent>
               </Tooltip>
-            )}
-            {hasMessages && onClearMessages && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={"ghost"}
-                    size={"icon"}
-                    onClick={onClearMessages}>
-                    <Trash2Icon className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Clear all messages</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant={"ghost"} size={"icon"} asChild>
-                  <Link href="/settings">
-                    <Settings2Icon className="w-4 h-4" />
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Settings</p>
-              </TooltipContent>
-            </Tooltip>
-            <img
-              src={
-                session.user?.image ||
-                `https://avatar.vercel.sh/${session.user?.name}`
-              }
-              alt="User avatar"
-              className="w-6 h-6 rounded-full m-1"
-            />
-          </div>
-        )}
-      </div>
+              <Image
+                src={
+                  session.user?.image ||
+                  `https://avatar.vercel.sh/${session.user?.name}`
+                }
+                alt="User avatar"
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-full m-1"
+              />
+            </div>
+          )}
+        </div>
+      </nav>
     </TooltipProvider>
   );
 }

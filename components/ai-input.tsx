@@ -10,7 +10,6 @@ import {
   PromptInputModelSelectContent,
   PromptInputModelSelectItem,
   PromptInputModelSelectTrigger,
-  PromptInputModelSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -24,6 +23,7 @@ import {
   GemIcon,
   ImageIcon,
   MonitorDownIcon,
+  PaperclipIcon,
   TelescopeIcon,
   ZapIcon,
 } from "lucide-react";
@@ -59,7 +59,7 @@ export default function AIInput({
       globalDrop
       multiple
       accept="image/*"
-      className="bg-accent/20">
+      className="border-t bg-background/80 backdrop-blur-md border-border/50 shadow-lg">
       <PromptInputBody>
         <PromptInputAttachments>
           {(attachment) => <PromptInputAttachment data={attachment} />}
@@ -67,18 +67,24 @@ export default function AIInput({
         <PromptInputTextarea
           onChange={(e) => setInput(e.target.value)}
           value={input}
+          placeholder="Ask me anything..."
+          className="min-h-[60px] resize-none border-0 bg-transparent px-6 py-4 text-base focus:ring-0 placeholder:text-muted-foreground/60"
         />
       </PromptInputBody>
       <PromptInputToolbar>
         <PromptInputTools>
-          <PromptInputActionMenuTrigger />
+          <PromptInputActionMenuTrigger title="Add files">
+            <PaperclipIcon className="w-4 h-4" />
+          </PromptInputActionMenuTrigger>
           <PromptInputModelSelect
             onValueChange={(value) => {
               setModel(value);
             }}
             value={model}>
-            <PromptInputModelSelectTrigger className="bg-transparent">
-              <PromptInputModelSelectValue className="bg-transparent" />
+            <PromptInputModelSelectTrigger className="bg-transparent px-2 py-1 text-xs font-medium border-none shadow-none h-8">
+              <span className="truncate max-w-[100px]">
+                {models.find(m => m.value === model)?.name || model}
+              </span>
             </PromptInputModelSelectTrigger>
             <PromptInputModelSelectContent>
               {models.map((model) => (
@@ -126,15 +132,17 @@ export default function AIInput({
           <PromptInputButton
             variant={deepresearch ? "default" : "ghost"}
             onClick={() => setDeepresearch(!deepresearch)}
-            title="Toggle Deep Research">
+            title="Toggle Deep Research"
+            className={deepresearch ? "!bg-accent !text-accent-foreground" : ""}>
             <TelescopeIcon className="w-4 h-4" />
           </PromptInputButton>
         </PromptInputTools>
 
         <PromptInputSubmit
-          disabled={!input && !status}
+          disabled={!input.trim() && status !== "streaming"}
           status={status}
           stop={stop}
+          className="h-10 w-10 rounded-full p-0 shadow-lg hover:shadow-xl transition-all duration-200"
         />
       </PromptInputToolbar>
     </PromptInput>

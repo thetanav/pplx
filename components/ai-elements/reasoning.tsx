@@ -17,7 +17,6 @@ import {
   useState,
 } from "react";
 import { Response } from "./response";
-import Shimmer from "./shimmer";
 
 type ReasoningContextValue = {
   isStreaming: boolean;
@@ -97,6 +96,11 @@ export const Reasoning = memo(
       setIsOpen(newOpen);
     };
 
+    // Only render if streaming (thinking) or if it has been opened manually
+    if (!isStreaming && !isOpen) {
+      return null;
+    }
+
     return (
       <ReasoningContext.Provider
         value={{ isStreaming, isOpen, setIsOpen, duration }}>
@@ -114,28 +118,31 @@ export const Reasoning = memo(
 
 export type ReasoningTriggerProps = ComponentProps<typeof CollapsibleTrigger>;
 
-const getThinkingMessage = (isStreaming: boolean, duration?: number) => {
-  if (isStreaming || duration === 0) {
-    return <Shimmer text="Thinking" />;
-  }
-  if (duration === undefined) {
-    return <p>Thought for a few seconds</p>;
-  }
-  return <p>Thought for {duration} seconds</p>;
-};
-
 export const ReasoningTrigger = memo(
   ({ className, children, ...props }: ReasoningTriggerProps) => {
-    const { isStreaming, duration } = useReasoning();
+    const { isStreaming } = useReasoning();
+
+    // Beautiful shimmer effect without text when thinking
+    const triggerContent = children ?? (isStreaming ? (
+      <div className="flex items-center justify-center">
+        <div className="relative w-48 h-12 overflow-hidden rounded-2xl bg-gradient-to-r from-primary/5 via-primary/15 to-primary/5 shadow-inner">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent rounded-2xl shimmer-thinking"></div>
+        </div>
+      </div>
+    ) : null);
+
+    if (!triggerContent) {
+      return null;
+    }
 
     return (
       <CollapsibleTrigger
         className={cn(
-          "flex w-full items-center gap-2 text-muted-foreground text-md font-bold transition-colors hover:text-foreground",
+          "flex w-full items-center justify-center py-8",
           className
         )}
         {...props}>
-        {children ?? <>{getThinkingMessage(isStreaming, duration)}</>}
+        {triggerContent}
       </CollapsibleTrigger>
     );
   }

@@ -4,6 +4,7 @@ import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
+  ConversationUserLocator,
 } from "@/components/ai-elements/conversation";
 import {
   Message,
@@ -14,6 +15,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
+import Image from "next/image";
 
 import {
   Dialog,
@@ -37,7 +39,6 @@ import { Tool, ToolHeader } from "@/components/ai-elements/tool";
 import { DynamicToolUIPart } from "ai";
 import { toast } from "sonner";
 import {
-  ArrowDownRightIcon,
   BoxIcon,
   GlobeIcon,
   LoaderCircleIcon,
@@ -284,14 +285,24 @@ const ChatBotDemo = () => {
         onClearMessages={handleClearAllMessages}
         hasMessages={localMessages.length > 0}
       />
-      {!localMessages || localMessages.length === 0 ? (
-        <div className="absolute flex flex-col top-0 left-0 right-0 bottom-0 space-y-4 -z-50 items-center justify-center text-center mb-24">
-          <SmileIcon className="w-16 h-16 text-muted-foreground animate-bounce" />
-          <h2 className="text-3xl font-semibold">Welcome to Simp Chat</h2>
-          <p className="text-muted-foreground text-sm w-96">
-            Note: Chats are temporary and not stored. Refreshing the page will
-            clear the conversation.
-          </p>
+       {!localMessages || localMessages.length === 0 ? (
+        <div className="absolute flex flex-col top-0 left-0 right-0 bottom-0 space-y-8 -z-50 items-center justify-center text-center mb-24 px-4">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl scale-150"></div>
+            <SmileIcon className="relative w-24 h-24 text-primary drop-shadow-lg" suppressHydrationWarning={true} />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent leading-tight">
+              Welcome to Simp AI
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-md leading-relaxed font-medium">
+              Experience the future of AI conversation. Ask anything, explore ideas, and discover insights with our advanced AI assistant.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-full border">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            AI is ready to assist you
+          </div>
         </div>
       ) : null}
       <div className="flex flex-col h-full">
@@ -309,7 +320,7 @@ const ChatBotDemo = () => {
                 message.parts.find((part) => part.type === "text")?.text || "";
 
               return (
-                <div key={message.id}>
+                <div key={message.id} id={`message-${message.id}`}>
                   <Message
                     from={message.role}
                     actions={
@@ -442,14 +453,16 @@ const ChatBotDemo = () => {
                                                 hostname = "external";
                                               }
 
-                                              return (
-                                                <img
-                                                  key={`${message.id}-${i}-${toolType}-${outputIndex}`}
-                                                  src={`https://www.google.com/s2/favicons?domain=${hostname}`}
-                                                  alt={`Favicon for ${hostname}`}
-                                                  className="rounded-full border-2 border-white shadow-sm w-6 h-6 -ml-2 bg-white"
-                                                />
-                                              );
+                                               return (
+                                                 <Image
+                                                   key={`${message.id}-${i}-${toolType}-${outputIndex}`}
+                                                   src={`https://www.google.com/s2/favicons?domain=${hostname}`}
+                                                   alt={`Favicon for ${hostname}`}
+                                                   width={24}
+                                                   height={24}
+                                                   className="rounded-full border-2 border-white shadow-sm w-6 h-6 -ml-2 bg-white"
+                                                 />
+                                               );
                                             })}
                                           {dyn.output.length > 5 && (
                                             <div className="rounded-full border-2 border-white shadow-sm w-6 h-6 -ml-2 bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">
@@ -461,18 +474,18 @@ const ChatBotDemo = () => {
                                   </div>
                                 </Tool>
                               );
-                            case part.type == "file" &&
-                              part.mediaType.startsWith("image/"):
-                              return (
-                                <img
-                                  alt={part.filename ?? "Simp AI image gen"}
-                                  src={part.url}
-                                  key={`${part.filename}`}
-                                  width={100}
-                                  height={100}
-                                  className="rounded-md"
-                                />
-                              );
+                             case part.type == "file" &&
+                               part.mediaType.startsWith("image/"):
+                               return (
+                                 <Image
+                                   alt={part.filename ?? "Simp AI image gen"}
+                                   src={part.url}
+                                   key={`${part.filename}`}
+                                   width={100}
+                                   height={100}
+                                   className="rounded-md"
+                                 />
+                               );
                             default:
                               return null;
                           }
@@ -482,41 +495,18 @@ const ChatBotDemo = () => {
                       {message.role === "assistant" && (
                         <div className="w-full">
                           <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-3 text-sm">
-                              {metadata?.stats && (
-                                <>
-                                  <div className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
-                                    <ArrowDownRightIcon className="w-3 h-3 -rotate-90" />
-                                    <span className="font-medium">
-                                      {metadata.stats?.outputTokens ?? 0}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      out
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                                    <ArrowDownRightIcon className="w-3 h-3 rotate-90" />
-                                    <span className="font-medium">
-                                      {metadata.stats?.inputTokens ?? 0}
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                      in
-                                    </span>
-                                  </div>
-                                  <div className="w-px h-4 bg-accent"></div>
-                                </>
-                              )}
-                              <div className="flex items-center gap-1">
+                             <div className="flex items-center gap-3 text-sm">
+                               <div className="flex items-center gap-1">
                                 {(() => {
                                   switch (status) {
-                                    case "streaming":
-                                      return (
-                                        <LoaderCircleIcon className="w-3 h-3 animate-spin text-green-500" />
-                                      );
-                                    default:
-                                      return (
-                                        <BoxIcon className="w-3 h-3 text-muted-foreground" />
-                                      );
+                                     case "streaming":
+                                       return (
+                                         <LoaderCircleIcon className="w-3 h-3 animate-spin text-green-500" suppressHydrationWarning={true} />
+                                       );
+                                     default:
+                                       return (
+                                         <BoxIcon className="w-3 h-3 text-muted-foreground" suppressHydrationWarning={true} />
+                                       );
                                   }
                                 })()}
                                 <span className="font-medium text-muted-foreground">
@@ -558,10 +548,10 @@ const ChatBotDemo = () => {
                                   {searchResults.length > 0 && (
                                     <Dialog>
                                       <DialogTrigger asChild>
-                                        <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
-                                          <GlobeIcon className="w-4 h-4" />
-                                          {searchResults.length} sources
-                                        </button>
+                                         <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-foreground transition-all duration-200 opacity-60 hover:opacity-100 cursor-pointer">
+                                           <GlobeIcon className="w-4 h-4" suppressHydrationWarning={true} />
+                                           {searchResults.length} sources
+                                         </button>
                                       </DialogTrigger>
                                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                                         <DialogHeader>
@@ -629,6 +619,7 @@ const ChatBotDemo = () => {
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
+        <ConversationUserLocator messages={localMessages} />
         {session && (
           <AIInput
             handleSubmit={handleSubmit}

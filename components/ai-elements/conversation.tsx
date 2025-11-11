@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, UserIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
@@ -91,5 +91,47 @@ export const ConversationScrollButton = ({
         <ArrowDownIcon className="size-4" />
       </Button>
     )
+  );
+};
+
+export type ConversationUserLocatorProps = {
+  messages: Array<{ id: string; role: string }>;
+  className?: string;
+};
+
+export const ConversationUserLocator = ({
+  messages,
+  className
+}: ConversationUserLocatorProps) => {
+  const [visible, setVisible] = useState(false);
+
+  // Show locator when there are user messages
+  useEffect(() => {
+    const hasUserMessages = messages.some(msg => msg.role === 'user');
+    setVisible(hasUserMessages);
+  }, [messages]);
+
+  if (!visible) return null;
+
+  const latestUserMessage = messages.filter(msg => msg.role === 'user').pop();
+
+  if (!latestUserMessage) return null;
+
+  return (
+    <button
+      className={cn(
+        "fixed right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-primary/60 hover:bg-primary text-primary-foreground shadow-md transition-all duration-200 hover:scale-110 flex items-center justify-center",
+        className
+      )}
+      title="Go to your last message"
+      onClick={() => {
+        const element = document.getElementById(`message-${latestUserMessage.id}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }}
+    >
+      <UserIcon className="w-3 h-3" />
+    </button>
   );
 };
